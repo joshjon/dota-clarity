@@ -8,4 +8,5 @@ s3_prefix = "dota-clarity"
 region = "ap-southeast-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Environment=\"aws\" TableName=\"dota-clarity-profiles-table\""
 

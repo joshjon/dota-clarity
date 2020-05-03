@@ -8,6 +8,20 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+def get_ddb():
+    ENV = os.environ['ENVIRONMENT']
+    if ENV == 'local':
+        return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/')
+    else:
+        return boto3.resource('dynamodb')
+
+
+def getOpenDotaProfile(steamid):
+    headers = {"Content-Type": "application/json"}
+    opendota_url = "https://api.opendota.com/api/players/" + steamid
+    return requests.get(opendota_url, headers=headers)
+
+
 def generateResponse(statusCode, body):
     return {
         "statusCode": statusCode,
@@ -20,11 +34,6 @@ def generateResponse(statusCode, body):
         },
         "isBase64Encoded": False
     }
-
-def getOpenDotaProfile(steamid):
-    headers = {"Content-Type": "application/json"}
-    opendota_url = "https://api.opendota.com/api/players/" + steamid
-    return requests.get(opendota_url, headers=headers) 
 
 
 def lambda_handler(event, context):
@@ -63,7 +72,7 @@ def lambda_handler(event, context):
     # Add profile to DynamoDB
     try:
         logger.info("Adding profile to table %s" % os.environ["TABLE_NAME"])
-        ddb = boto3.resource("dynamodb")
+        ddb = get_ddb()
         table = ddb.Table(os.environ["TABLE_NAME"])
         ddb_response = table.put_item(Item=profile_data)
         logger.info("DynamoDB response: %s" % json.dumps(ddb_response))
