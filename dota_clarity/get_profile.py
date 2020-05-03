@@ -1,8 +1,6 @@
 import json
-import boto3
 import logging
 import requests
-from requests_aws4auth import AWS4Auth
 
 """
 Parameters

@@ -3,26 +3,104 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   dota-clarity
 
-  Sample SAM Template for dota-clarity
+  SAM Template for dota-clarity
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 10
+    # Environment:
+    #     Variables:
+    #         DYNAMO_TABLE: !Ref DynamoDBTable
+    #         DB_ENDPOINT: http://dynamodb.ap-southeast-2.amazonaws.com
+    #         REGION_NAME: ap-southeast-2 # Get this from 
+
+Parameters:
+  TableName:
+    Type: String
+    Default: 'dotaclarity'
+    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z]+$
+    ConstraintDescription: 'Required parameter. Must be characters only. No numbers allowed.'
 
 Resources:
-  DotaClarityCreateProfileFunction:
+  # CreateDotaClarityProfileFunction:
+  #   Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  #   Properties:
+  #     CodeUri: dota_clarity/
+  #     Handler: create_profile.lambda_handler
+  #     Runtime: python3.8
+  #     CodeUri: .
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref TableName
+  #     Environment:
+  #       Variables:
+  #         TABLE_NAME: !Ref TableName    
+  #     Events:
+  #       CreateProfileAPI:
+  #         Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+  #         Properties:
+  #           Path: /profiles
+  #           Method: post
+  GetDotaClarityProfileFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: dota_clarity/
-      Handler: create_profile.lambda_handler
+      Handler: get_profile.lambda_handler
       Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableName
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName    
       Events:
-        CreateProfile:
+        GetProfileAPI:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /profiles
+            Path: /profiles/{id}
             Method: get
+  DotaClarityProfilesDynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Ref TableName
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+  DotaClarityS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: landing.html
+        ErrorDocument: error.html
+    # DeletionPolicy: Retain # AWS CloudFormation will not delete this bucket when it deletes the stack
+  DotaClarityS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: Dota Clarity Frontend Bucket Policy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref DotaClarityS3Bucket
+                - /*
+      Bucket: !Ref DotaClarityS3Bucket
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -31,9 +109,28 @@ Outputs:
   DotaClarityApi:
     Description: "API Gateway endpoint URL for Prod stage for Dota Clarity Functions"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/profiles/"
-  DotaClarityCreateProfileFunction:
-    Description: "Dota Clarity Create Profile Lambda Function ARN"
-    Value: !GetAtt DotaClarityCreateProfileFunction.Arn
-  DotaClarityCreateProfileFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
-    Value: !GetAtt DotaClarityCreateProfileFunction.Arn
+  # CreateDotaClarityProfileFunction:
+  #   Description: "Dota Clarity Create Profile Lambda Function ARN"
+  #   Value: !GetAtt CreateDotaClarityProfileFunction.Arn
+  # CreateDotaClarityProfileFunction:
+  #   Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
+  #   Value: !GetAtt CreateDotaClarityProfileFunction.Arn
+  GetDotaClarityProfileFunction:
+    Description: "Dota Clarity Get Profile Lambda Function ARN"
+    Value: !GetAtt GetDotaClarityProfileFunction.Arn
+  GetDotaClarityProfileFunction:
+    Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
+    Value: !GetAtt GetDotaClarityProfileFunction.Arn
+  WebsiteURL:
+    Value: !GetAtt 
+      - DotaClarityS3Bucket
+      - WebsiteURL
+    Description: URL for Dota Clarity website hosted on S3
+  S3BucketSecureURL:
+    Value: !Join 
+      - ''
+      - - 'https://'
+        - !GetAtt 
+          - DotaClarityS3Bucket
+          - DomainName
+    Description: Name of S3 bucket to hold website content
