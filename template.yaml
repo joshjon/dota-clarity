@@ -8,22 +8,7 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 10
-    # Environment:
-    #     Variables:
-    #         DYNAMO_TABLE: !Ref DynamoDBTable
-    #         DB_ENDPOINT: http://dynamodb.ap-southeast-2.amazonaws.com
-    #         REGION_NAME: ap-southeast-2 # Get this from 
-
-Parameters:
-  TableName:
-    Type: String
-    Default: 'dotaclarity'
-    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
-    MinLength: 3
-    MaxLength: 50
-    AllowedPattern: ^[A-Za-z]+$
-    ConstraintDescription: 'Required parameter. Must be characters only. No numbers allowed.'
+    Timeout: 10 
 
 Resources:
   # CreateDotaClarityProfileFunction:
@@ -45,31 +30,33 @@ Resources:
   #         Properties:
   #           Path: /profiles
   #           Method: post
-  GetDotaClarityProfileFunction:
+  GetProfileFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-profile
       CodeUri: dota_clarity/
       Handler: get_profile.lambda_handler
       Runtime: python3.8
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
+            TableName: !Ref ProfilesTable
       Environment:
         Variables:
-          TABLE_NAME: !Ref TableName    
+          TABLE_NAME: !Ref ProfilesTable
+          TABLE_ARN: !GetAtt ProfilesTable.Arn
       Events:
         GetProfileAPI:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /profiles/{id}
-            Method: get
-  DotaClarityProfilesDynamoDBTable:
+            Method: GET
+  ProfilesTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: !Ref TableName
+      TableName: !Sub ${AWS::StackName}-profiles-table
       ProvisionedThroughput: 
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -109,18 +96,18 @@ Outputs:
   DotaClarityApi:
     Description: "API Gateway endpoint URL for Prod stage for Dota Clarity Functions"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/profiles/"
-  # CreateDotaClarityProfileFunction:
+  # CreateProfileFunction:
   #   Description: "Dota Clarity Create Profile Lambda Function ARN"
-  #   Value: !GetAtt CreateDotaClarityProfileFunction.Arn
-  # CreateDotaClarityProfileFunction:
+  #   Value: !GetAtt CreateProfileFunction.Arn
+  # CreateProfileFunction:
   #   Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
-  #   Value: !GetAtt CreateDotaClarityProfileFunction.Arn
-  GetDotaClarityProfileFunction:
+  #   Value: !GetAtt CreateProfileFunction.Arn
+  GetProfileFunction:
     Description: "Dota Clarity Get Profile Lambda Function ARN"
-    Value: !GetAtt GetDotaClarityProfileFunction.Arn
-  GetDotaClarityProfileFunction:
+    Value: !GetAtt GetProfileFunction.Arn
+  GetProfileFunction:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
-    Value: !GetAtt GetDotaClarityProfileFunction.Arn
+    Value: !GetAtt GetProfileFunction.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket
