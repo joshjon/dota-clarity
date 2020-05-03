@@ -11,25 +11,26 @@ Globals:
     Timeout: 10 
 
 Resources:
-  # CreateDotaClarityProfileFunction:
-  #   Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-  #   Properties:
-  #     CodeUri: dota_clarity/
-  #     Handler: create_profile.lambda_handler
-  #     Runtime: python3.8
-  #     CodeUri: .
-  #     Policies:
-  #       - DynamoDBCrudPolicy:
-  #           TableName: !Ref TableName
-  #     Environment:
-  #       Variables:
-  #         TABLE_NAME: !Ref TableName    
-  #     Events:
-  #       CreateProfileAPI:
-  #         Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-  #         Properties:
-  #           Path: /profiles
-  #           Method: post
+  CreateProfileFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-create-profile
+      CodeUri: dota_clarity/
+      Handler: create_profile.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProfilesTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref ProfilesTable
+          TABLE_ARN: !GetAtt ProfilesTable.Arn
+      Events:
+        CreateProfileAPI:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /profiles/
+            Method: POST
   GetProfileFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -70,7 +71,6 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: landing.html
         ErrorDocument: error.html
-    # DeletionPolicy: Retain # AWS CloudFormation will not delete this bucket when it deletes the stack
   DotaClarityS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -96,16 +96,16 @@ Outputs:
   DotaClarityApi:
     Description: "API Gateway endpoint URL for Prod stage for Dota Clarity Functions"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/profiles/"
-  # CreateProfileFunction:
-  #   Description: "Dota Clarity Create Profile Lambda Function ARN"
-  #   Value: !GetAtt CreateProfileFunction.Arn
-  # CreateProfileFunction:
-  #   Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
-  #   Value: !GetAtt CreateProfileFunction.Arn
+  CreateProfileFunction:
+    Description: "Dota Clarity Create Profile Lambda Function ARN"
+    Value: !GetAtt CreateProfileFunction.Arn
+  CreateProfileFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
+    Value: !GetAtt CreateProfileFunction.Arn
   GetProfileFunction:
     Description: "Dota Clarity Get Profile Lambda Function ARN"
     Value: !GetAtt GetProfileFunction.Arn
-  GetProfileFunction:
+  GetProfileFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
     Value: !GetAtt GetProfileFunction.Arn
   WebsiteURL:
