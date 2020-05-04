@@ -6,9 +6,10 @@ import decimal
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 # Helper class to convert a DynamoDB item to JSON.
-
-
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, decimal.Decimal):
@@ -18,18 +19,12 @@ class DecimalEncoder(json.JSONEncoder):
                 return int(o)
         return super(DecimalEncoder, self).default(o)
 
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
 def get_ddb():
     ENV = os.environ['ENVIRONMENT']
     if ENV == 'local':
         return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/')
     else:
         return boto3.resource('dynamodb')
-
 
 def generateResponse(statusCode, body):
     return {
@@ -44,7 +39,6 @@ def generateResponse(statusCode, body):
         "isBase64Encoded": False
     }
 
-
 def lambda_handler(event, context):
     id_key = {'id': event['pathParameters']['id']}
     try:
@@ -52,8 +46,9 @@ def lambda_handler(event, context):
         ddb = get_ddb()
         table = ddb.Table(os.environ["TABLE_NAME"])
         ddb_response = table.get_item(Key=id_key)
+        logger.info("DynamoDB response: " + json.dumps(ddb_response))
     except ClientError as e:
         return generateResponse(400, "Unable to add profile to DynamoDb: %s" % e.response['Error']['Message'])
     else:
         item = ddb_response['Item']
-        return generateResponse(201, "Get profile succeeded: %s" % json.dumps(item, indent=4, cls=DecimalEncoder))
+        return generateResponse(200, json.dumps(item, indent=4, cls=DecimalEncoder))

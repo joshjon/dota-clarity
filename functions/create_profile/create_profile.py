@@ -1,12 +1,13 @@
 import json
 import os
 import boto3
+import decimal
 import requests
 import logging
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
 
 def get_ddb():
     ENV = os.environ['ENVIRONMENT']
@@ -15,12 +16,10 @@ def get_ddb():
     else:
         return boto3.resource('dynamodb')
 
-
 def getOpenDotaProfile(steamid):
     headers = {"Content-Type": "application/json"}
     opendota_url = "https://api.opendota.com/api/players/" + steamid
     return requests.get(opendota_url, headers=headers)
-
 
 def generateResponse(statusCode, body):
     return {
@@ -34,7 +33,6 @@ def generateResponse(statusCode, body):
         },
         "isBase64Encoded": False
     }
-
 
 def lambda_handler(event, context):
     if "body" not in event:
@@ -71,13 +69,12 @@ def lambda_handler(event, context):
 
     # Add profile to DynamoDB
     try:
-        logger.info("Adding profile to table %s" % os.environ["TABLE_NAME"])
+        logger.info("Adding profile to table " + os.environ["TABLE_NAME"])
         ddb = get_ddb()
         table = ddb.Table(os.environ["TABLE_NAME"])
         ddb_response = table.put_item(Item=profile_data)
-        logger.info("DynamoDB response: %s" % json.dumps(ddb_response))
-    except Exception as e:
-        return generateResponse(400, "Unable to add profile to DynamoDb: %s" % e)
+        logger.info("DynamoDB response: " + json.dumps(ddb_response))
+    except ClientError as e:
+        return generateResponse(400, "Unable to add profile to DynamoDb: " + e.response['Error']['Message'])
 
-    return generateResponse(201, "Profile was successfuly saved to table %s" % os.environ["TABLE_NAME"])
-    
+    return generateResponse(201, "Create profile succeded")
