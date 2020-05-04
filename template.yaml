@@ -32,7 +32,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       FunctionName: !Sub ${AWS::StackName}-create-profile
-      CodeUri: dota_clarity/
+      CodeUri: functions/create_profile/
       Handler: create_profile.lambda_handler
       Runtime: python3.8
       Policies:
@@ -53,7 +53,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-profile
-      CodeUri: dota_clarity/
+      CodeUri: functions/get_profile/
       Handler: get_profile.lambda_handler
       Runtime: python3.8
       Policies:

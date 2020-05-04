@@ -79,5 +79,5 @@ def lambda_handler(event, context):
     except Exception as e:
         return generateResponse(400, "Unable to add profile to DynamoDb: %s" % e)
 
-    lambda_response = generateResponse(201, "Profile was successfuly saved to table %s" % os.environ["TABLE_NAME"])
-    return lambda_response
+    return generateResponse(201, "Profile was successfuly saved to table %s" % os.environ["TABLE_NAME"])
+    

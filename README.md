@@ -18,20 +18,12 @@ To build and deploy the application, run the following commands in your shell:
 
 ```bash
 sam build --use-container
-sam deploy --guided
+sam deploy
 ```
 
-The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
+Note: if you would like to change the deployment configuration then use `sam deploy --guided`.
 
-* **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
-* **AWS Region**: The AWS region you want to deploy your app to.
-* **Parameter Environment**: The environment you want to deploy to (aws or local)
-* **Parameter TableName**: The name of the DynamoDB table.
-* **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
-* **Allow SAM CLI IAM role creation**: Dota Clarity requires this permission to create AWS IAM roles required for the included AWS Lambda function(s) to access AWS services.
-* **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
-
-You can find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment.
+You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment.
 
 ## Local development and testing
 
@@ -66,17 +58,17 @@ Sample payloads are provided in the `/payloads` directory and are used in the re
 
 **Create profile**
 ```
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:8000/profiles
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:3000/profiles
 ```
 
 **Get profile**
 ```
-curl -X GET -H "Content-Type: application/json" http://localhost:8000/profiles/<profile-id-here>
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/<profile-id-here>
 ```
 
 You can also perform a scan on the local DynamoDB table to list all the created profiles.
 ```
-aws dynamodb scan --table-name dota-clarity-profiles --endpoint-url http://localhost:8000
+aws dynamodb scan --table-name dota-clarity-profiles --endpoint-url http://localhost:3000
 ```
 
 ### Cleanup the local environment
