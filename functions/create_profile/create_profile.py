@@ -9,12 +9,12 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def get_ddb():
+def get_ddb_table():
     ENV = os.environ['ENVIRONMENT']
     if ENV == 'local':
-        return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/')
+        return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/').Table("dota-clarity-profiles")
     else:
-        return boto3.resource('dynamodb')
+        return boto3.resource('dynamodb').Table(os.environ["TABLE_NAME"])
 
 def getOpenDotaProfile(steamid):
     headers = {"Content-Type": "application/json"}
@@ -70,9 +70,8 @@ def lambda_handler(event, context):
     # Add profile to DynamoDB
     try:
         logger.info("Adding profile to table " + os.environ["TABLE_NAME"])
-        ddb = get_ddb()
-        table = ddb.Table(os.environ["TABLE_NAME"])
-        ddb_response = table.put_item(Item=profile_data)
+        ddb = get_ddb_table()
+        ddb_response = ddb.put_item(Item=profile_data)
         logger.info("DynamoDB response: " + json.dumps(ddb_response))
     except ClientError as e:
         return generateResponse(400, "Unable to add profile to DynamoDb: " + e.response['Error']['Message'])
