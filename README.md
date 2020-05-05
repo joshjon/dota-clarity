@@ -69,6 +69,11 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/b
 curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/bestdotaplayer@dota.com
 ```
 
+**Get match**
+```
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/bestdotaplayer@dota.com/5392211187
+```
+
 **Scan table**
 You can also perform a scan on the local DynamoDB table to list all items.
 ```
