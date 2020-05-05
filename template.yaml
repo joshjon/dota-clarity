@@ -133,6 +133,27 @@ Resources:
           Properties:
             Path: /matches/{id}/{match_id}
             Method: GET
+  GetMatchesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-matches
+      CodeUri: functions/match/get_matches/
+      Handler: get_matches.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/{id}/
+            Method: GET
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -178,17 +199,23 @@ Outputs:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
     Value: !GetAtt GetProfileFunction.Arn
   CreateMatchFunction:
-    Description: "Dota Clarity Create Profile Lambda Function ARN"
+    Description: "Dota Clarity Create Match Lambda Function ARN"
     Value: !GetAtt CreateMatchFunction.Arn
   CreateMatchFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Create Match function"
     Value: !GetAtt CreateMatchFunction.Arn
   GetMatchFunction:
-    Description: "Dota Clarity Get Profile Lambda Function ARN"
+    Description: "Dota Clarity Get Match Lambda Function ARN"
     Value: !GetAtt GetMatchFunction.Arn
   GetMatchFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Match function"
     Value: !GetAtt GetMatchFunction.Arn
+  GetMatchesFunction:
+    Description: "Dota Clarity Get Matches Lambda Function ARN"
+    Value: !GetAtt GetMatchesFunction.Arn
+  GetMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Matches function"
+    Value: !GetAtt GetMatchesFunction.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket

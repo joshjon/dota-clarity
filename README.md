@@ -55,28 +55,33 @@ sam local start-api --parameter-overrides ParameterKey=Environment,ParameterValu
 Sample payloads are provided in the `/payloads` directory and are used in the requests below.
 
 **Create profile**
-```
+```bash
 curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:3000/profiles
 ```
 
 **Get profile**
-```
+```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
 ```
 
 **Create match**
-```
+```bash
 curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/bestdotaplayer@dota.com
 ```
 
 **Get match**
-```
+```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/bestdotaplayer@dota.com/5392211187
+```
+
+**Get all matches**
+```bash
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/bestdotaplayer@dota.com
 ```
 
 **Scan table**
 You can also perform a scan on the local DynamoDB table to list all items.
-```
+```bash
 aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:3000
 ```
 
