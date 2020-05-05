@@ -33,6 +33,23 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+  MatchesTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${AWS::StackName}-matches-table
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: matchid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: "matchid"
+          KeyType: "RANGE"
   CreateProfileFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
