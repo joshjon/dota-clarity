@@ -22,7 +22,7 @@ class DecimalEncoder(json.JSONEncoder):
 def get_ddb_table():
     ENV = os.environ['ENVIRONMENT']
     if ENV == 'local':
-        return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/').Table("dota-clarity-profiles")
+        return boto3.resource('dynamodb', endpoint_url='http://dynamodb:8000/').Table("dota-clarity-profiles-table")
     else:
         return boto3.resource('dynamodb').Table(os.environ["TABLE_NAME"])
 

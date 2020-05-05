@@ -15,6 +15,8 @@ To use the SAM CLI, you need the following tools installed.
 
 Dota Clarity uses the Serverless Application Model Command Line Interface (SAM CLI) for building and deploying the application. To build and deploy the application, run the following commands in your shell:
 
+** NOTE: Check if --use-container is required for deploying to AWS **
+
 ```bash
 sam build --use-container
 sam deploy
@@ -62,10 +64,15 @@ curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.jso
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
 ```
 
+**Create match**
+```
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/bestdotaplayer@dota.com
+```
+
 **Scan table**
 You can also perform a scan on the local DynamoDB table to list all items.
 ```
-aws dynamodb scan --table-name dota-clarity-profiles --endpoint-url http://localhost:3000
+aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:3000
 ```
 
 ### Cleanup the local environment

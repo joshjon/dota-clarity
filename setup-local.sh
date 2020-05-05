@@ -11,10 +11,10 @@ docker run --network dota-clarity --name dynamodb -d -p 8000:8000 amazon/dynamod
 echo "Wating for network..."
 sleep 1
 
-echo "Creating 'profiles' local DynamoDB table"
+echo "Creating local DynamoDB table 'dota-clarity-profiles-table'"
 
 aws dynamodb create-table \
-    --table-name dota-clarity-profiles \
+    --table-name dota-clarity-profiles-table \
     --attribute-definitions \
         AttributeName=id,AttributeType=S \
     --key-schema AttributeName=id,KeyType=HASH \
@@ -23,15 +23,15 @@ aws dynamodb create-table \
 --endpoint-url \
     http://localhost:8000 
 
-echo "Creating 'matches' local DynamoDB table"
+echo "Creating local DynamoDB table 'dota-clarity-matches-table'"
 aws dynamodb create-table \
-    --table-name dota-clarity-matches \
+    --table-name dota-clarity-matches-table \
     --attribute-definitions \
         AttributeName=id,AttributeType=S \
-        AttributeName=matchid,AttributeType=S \
+        AttributeName=match_id,AttributeType=N \
     --key-schema \
         AttributeName=id,KeyType=HASH \
-        AttributeName=matchid,KeyType=RANGE \
+        AttributeName=match_id,KeyType=RANGE \
 --provisioned-throughput \
     ReadCapacityUnits=5,WriteCapacityUnits=5 \
 --endpoint-url \

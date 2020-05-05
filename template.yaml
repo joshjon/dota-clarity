@@ -43,18 +43,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
-        - AttributeName: matchid
-          AttributeType: S
+        - AttributeName: match_id
+          AttributeType: N
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-        - AttributeName: "matchid"
+        - AttributeName: "match_id"
           KeyType: "RANGE"
   CreateProfileFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       FunctionName: !Sub ${AWS::StackName}-create-profile
-      CodeUri: functions/create_profile/
+      CodeUri: functions/profile/create_profile/
       Handler: create_profile.lambda_handler
       Runtime: python3.8
       Policies:
@@ -75,7 +75,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-profile
-      CodeUri: functions/get_profile/
+      CodeUri: functions/profile/get_profile/
       Handler: get_profile.lambda_handler
       Runtime: python3.8
       Policies:
@@ -92,6 +92,27 @@ Resources:
           Properties:
             Path: /profiles/{id}
             Method: GET
+  CreateMatchFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-create-match
+      CodeUri: functions/match/create_match/
+      Handler: create_match.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        CreateMatchAPI:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /matches/{id}
+            Method: POST
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -136,6 +157,12 @@ Outputs:
   GetProfileFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
     Value: !GetAtt GetProfileFunction.Arn
+  CreateMatchFunction:
+    Description: "Dota Clarity Create Profile Lambda Function ARN"
+    Value: !GetAtt CreateMatchFunction.Arn
+  CreateMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Create Match function"
+    Value: !GetAtt CreateMatchFunction.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket
