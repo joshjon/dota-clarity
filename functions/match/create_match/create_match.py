@@ -27,6 +27,16 @@ def generate_response(statusCode, body):
         "isBase64Encoded": False
     }
 
+def get_hero_name(hero_id):
+    f = open('heroes.json')
+    hero_data = json.load(f)
+    for hero in hero_data: 
+        if hero["id"] == hero_id:
+            name = hero["name"].replace("npc_dota_hero_", "")
+            name = name.replace("_", " ")
+            return name.title()
+    return "Unknown"
+
 def lambda_handler(event, context):
     id_key = event['pathParameters']['id']
     if "body" not in event:
@@ -35,8 +45,11 @@ def lambda_handler(event, context):
         return generate_response(400, message)
 
     logger.info("Begin create match")
-    match_data = json.loads(event["body"])
+    data = json.loads(event["body"])
+    match_data = {}
     match_data["id"] = id_key
+    match_data["hero_name"] = get_hero_name(data["hero_id"])
+    match_data
 
     # Ensure event body contains match_id
     if "match_id" not in match_data:
