@@ -10,9 +10,9 @@ Get the profile of a Dota Clarity user.
 
 Required
 
-| Attribute | Type   | Description           |
-| :-------- | :----- | :-------------------- |
-| id        | string | user id of an account |
+| Attribute | Type   | Description                       |
+| :-------- | :----- | :-------------------------------- |
+| id        | string | user id of a dota clarity account |
 
 ## Success Responses
 
