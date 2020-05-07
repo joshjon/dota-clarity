@@ -53,7 +53,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-create-profile
-      CodeUri: functions/profile/create_profile/
+      CodeUri: functions/profiles/create_profile/
       Handler: create_profile.lambda_handler
       Runtime: python3.8
       Policies:
@@ -74,7 +74,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-profile
-      CodeUri: functions/profile/get_profile/
+      CodeUri: functions/profiles/get_profile/
       Handler: get_profile.lambda_handler
       Runtime: python3.8
       Policies:
@@ -91,11 +91,11 @@ Resources:
           Properties:
             Path: /profiles/{id}
             Method: GET
-  CreateMatchFunction:
+  CreateFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-create-match
-      CodeUri: functions/match/create_match/
+      FunctionName: !Sub ${AWS::StackName}-create-favourite-match
+      CodeUri: functions/matches/favourites/create_match/
       Handler: create_match.lambda_handler
       Runtime: python3.8
       Policies:
@@ -110,13 +110,13 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
-            Path: /matches/{id}
+            Path: /matches/favourites/{id}
             Method: POST
-  GetMatchFunction:
+  GetFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-get-match
-      CodeUri: functions/match/get_match/
+      FunctionName: !Sub ${AWS::StackName}-get-favourite-match
+      CodeUri: functions/matches/favourites/get_match/
       Handler: get_match.lambda_handler
       Runtime: python3.8
       Policies:
@@ -131,13 +131,13 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
-            Path: /matches/{id}/{match_id}
+            Path: /matches/favourites/{id}/{match_id}
             Method: GET
-  GetMatchesFunction:
+  GetFavouriteMatchesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub ${AWS::StackName}-get-matches
-      CodeUri: functions/match/get_matches/
+      FunctionName: !Sub ${AWS::StackName}-get-favourite-matches
+      CodeUri: functions/matches/favourites/get_matches/
       Handler: get_matches.lambda_handler
       Runtime: python3.8
       Policies:
@@ -152,7 +152,20 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
-            Path: /matches/{id}/
+            Path: /matches/favourites/{id}/
+            Method: GET
+  GetMatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-match
+      CodeUri: functions/matches/get_match/
+      Handler: get_match.lambda_handler
+      Runtime: python3.8
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/{match_id}/
             Method: GET
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
@@ -198,24 +211,30 @@ Outputs:
   GetProfileFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
     Value: !GetAtt GetProfileFunction.Arn
-  CreateMatchFunction:
-    Description: "Dota Clarity Create Match Lambda Function ARN"
-    Value: !GetAtt CreateMatchFunction.Arn
-  CreateMatchFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Create Match function"
-    Value: !GetAtt CreateMatchFunction.Arn
+  CreateFavouriteMatchFunction:
+    Description: "Dota Clarity Create Favourite Match Lambda Function ARN"
+    Value: !GetAtt CreateFavouriteMatchFunction.Arn
+  CreateFavouriteMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Create Favourite Match function"
+    Value: !GetAtt CreateFavouriteMatchFunction.Arn
+  GetFavouriteMatchFunction:
+    Description: "Dota Clarity Get Favourite Match Lambda Function ARN"
+    Value: !GetAtt GetFavouriteMatchFunction.Arn
+  GetFavouriteMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Match function"
+    Value: !GetAtt GetFavouriteMatchFunction.Arn
+  GetFavouriteMatchesFunction:
+    Description: "Dota Clarity Get Favourite Matches Lambda Function ARN"
+    Value: !GetAtt GetFavouriteMatchesFunction.Arn
+  GetFavouriteMatchesFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Matches function"
+    Value: !GetAtt GetFavouriteMatchesFunction.Arn
   GetMatchFunction:
     Description: "Dota Clarity Get Match Lambda Function ARN"
     Value: !GetAtt GetMatchFunction.Arn
   GetMatchFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Match function"
     Value: !GetAtt GetMatchFunction.Arn
-  GetMatchesFunction:
-    Description: "Dota Clarity Get Matches Lambda Function ARN"
-    Value: !GetAtt GetMatchesFunction.Arn
-  GetMatchFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get Matches function"
-    Value: !GetAtt GetMatchesFunction.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket

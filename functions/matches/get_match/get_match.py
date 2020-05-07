@@ -1,30 +1,11 @@
 import json
-import os
-import boto3
 import logging
-import decimal
 import requests
-from boto3.dynamodb.conditions import Key, Attr
-from botocore.exceptions import ClientError
 from odtranslator import Translator
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
 translate = Translator()
-
-# Helper class to convert a DynamoDB item to JSON.
-
-
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            if o % 1 > 0:
-                return float(o)
-            else:
-                return int(o)
-        return super(DecimalEncoder, self).default(o)
-
 
 def generate_response(statusCode, body):
     return {
@@ -39,7 +20,6 @@ def generate_response(statusCode, body):
         "isBase64Encoded": False
     }
 
-
 def get_open_dota_match(match_id):
     headers = {"Content-Type": "application/json"}
     opendota_url = "https://api.opendota.com/api/matches/" + match_id
@@ -50,16 +30,20 @@ def get_open_dota_match(match_id):
         return generate_response(404, message)
     return json.loads(od_response.text)
 
-
-# def lambda_handler(event, context):
-
-def test(match_id):
-    # match_id = int(event['pathParameters']['match_id'])
+def lambda_handler(event, context):
+    match_id = event['pathParameters']['match_id']
     od_match = get_open_dota_match(match_id)
-    match_keys = ("dire_score", "duration", "first_blood_time", "game_mode", "lobby_type", "radiant_gold_adv", "radiant_score",
-                  "radiant_win", "radiant_xp_adv", "start_time", "teamfights", "version", "skill", "players", "patch", "region", "replay_url")
-    # match = {k: od_match[k] for k in match_keys if k in od_match}
+    match_keys = ("dire_score", "duration", "game_mode", "radiant_score",
+                  "radiant_win", "start_time", "skill", "region", "replay_url")
+    match = {k: od_match[k] for k in match_keys if k in od_match}
+    match["match_id"] = int(match_id)
+    match["lobby_type"] = translate.get_lobby_type(od_match["lobby_type"])
+    match["region"] = translate.get_region(od_match["region"])
+    match["skill"] = translate.get_skill(od_match["skill"])
+    match["duration"] = od_match["duration"] // 60
+    match["game_mode"] = translate.get_game_mode(od_match["game_mode"])
     player_data = translate.get_player_data(od_match["players"])
-    print(json.dumps(player_data))
+    match["players"] = player_data
 
-test('5392211187')
+    logger.info("Retrieved match: " + json.dumps(match))
+    return generate_response(200, json.dumps(match))

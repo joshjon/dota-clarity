@@ -52,7 +52,9 @@ sam local start-api --parameter-overrides ParameterKey=Environment,ParameterValu
 
 ### Making requests to the local Dota Clarity API
 
-Sample payloads are provided in the `/payloads` directory and are used in the requests below.
+Example payloads are provided in the `/payloads` directory and are used in POST requests below.
+
+#### Profiles
 
 **Create profile**
 ```bash
@@ -64,25 +66,32 @@ curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.jso
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
 ```
 
-**Create match**
-```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/bestdotaplayer@dota.com
-```
+#### Matches
 
 **Get match**
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/bestdotaplayer@dota.com/5392211187
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/5392211187
 ```
 
-**Get all matches**
+**Create favourite match**
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/bestdotaplayer@dota.com
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
+```
+
+**Get favourite match**
+```bash
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com/5392211187
+```
+
+**Get all favourite matches**
+```bash
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
 ```
 
 **Scan table**
 You can also perform a scan on the local DynamoDB table to list all items.
 ```bash
-aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:3000
+aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:8000
 ```
 
 ### Cleanup the local environment

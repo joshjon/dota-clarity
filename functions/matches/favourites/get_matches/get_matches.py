@@ -26,7 +26,7 @@ def get_ddb_table():
     else:
         return boto3.resource('dynamodb').Table(os.environ["TABLE_NAME"])
 
-def generateResponse(statusCode, body):
+def generate_response(statusCode, body):
     return {
         "statusCode": statusCode,
         "body": body,
@@ -46,8 +46,8 @@ def lambda_handler(event, context):
         ddb = get_ddb_table()
         ddb_response = ddb.query(KeyConditionExpression=Key('id').eq(id_key))
     except ClientError as e:
-        return generateResponse(400, "Unable to get matches from DynamoDb: %s" % e.response['Error']['Message'])
+        return generate_response(400, "Unable to get matches from DynamoDb: %s" % e.response['Error']['Message'])
     else:
         logger.info("DynamoDB response: " + json.dumps(ddb_response, indent=4, cls=DecimalEncoder))
         items = ddb_response["Items"]
-        return generateResponse(200, json.dumps(items, indent=4, cls=DecimalEncoder))
+        return generate_response(200, json.dumps(items, indent=4, cls=DecimalEncoder))

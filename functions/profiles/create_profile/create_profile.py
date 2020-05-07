@@ -74,9 +74,9 @@ def lambda_handler(event, context):
         logger.info("DynamoDB response: " + json.dumps(ddb_response))
     except ClientError as e:
         return generate_response(400, "Unable to add profile to DynamoDb: " + e.response['Error']['Message'])
-
-    response = {
-        "id": profile_data["id"],
-        "steamid": profile_data["steamid"]
-    }
-    return generate_response(201, json.dumps(response))
+    else:
+        response = {
+            "id": profile_data["id"],
+            "steamid": profile_data["steamid"]
+        }
+        return generate_response(201, json.dumps(response))
