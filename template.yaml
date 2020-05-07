@@ -5,7 +5,6 @@ Description: >
 
   SAM Template for dota-clarity
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 10 
@@ -18,62 +17,12 @@ Parameters:
     AllowedValues:
       - local
       - aws
-  TableName:
-    Type: String
-    Default: dota-clarity-profiles-table
-    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
-    MinLength: 3
-    MaxLength: 50
-    AllowedPattern: ^[A-Za-z-]+$
-    ConstraintDescription: 'Required parameter. Must only contain letters or hyphens.'
 
 Resources:
-  CreateProfileFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-create-profile
-      CodeUri: dota_clarity/
-      Handler: create_profile.lambda_handler
-      Runtime: python3.8
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TableName
-      Environment:
-        Variables:
-          ENVIRONMENT: !Ref Environment
-          TABLE_NAME: !Ref TableName
-          TABLE_ARN: !GetAtt ProfilesTable.Arn
-      Events:
-        CreateProfileAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /profiles/
-            Method: POST
-  GetProfileFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-get-profile
-      CodeUri: dota_clarity/
-      Handler: get_profile.lambda_handler
-      Runtime: python3.8
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ProfilesTable
-      Environment:
-        Variables:
-          ENVIRONMENT: !Ref Environment
-          TABLE_NAME: !Ref TableName
-          TABLE_ARN: !GetAtt ProfilesTable.Arn
-      Events:
-        GetProfileAPI:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /profiles/{id}
-            Method: GET
   ProfilesTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: !Ref TableName
+      TableName: ${AWS::StackName}-profiles-table
       ProvisionedThroughput: 
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
@@ -83,6 +32,141 @@ Resources:
       KeySchema:
         - AttributeName: id
           KeyType: HASH
+  MatchesTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: ${AWS::StackName}-matches-table
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: match_id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: "match_id"
+          KeyType: "RANGE"
+  CreateProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-create-profile
+      CodeUri: functions/profiles/create_profile/
+      Handler: create_profile.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProfilesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref ProfilesTable
+          TABLE_ARN: !GetAtt ProfilesTable.Arn
+      Events:
+        CreateProfileAPI:
+          Type: Api
+          Properties:
+            Path: /profiles/
+            Method: POST
+  GetProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-profile
+      CodeUri: functions/profiles/get_profile/
+      Handler: get_profile.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProfilesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref ProfilesTable
+          TABLE_ARN: !GetAtt ProfilesTable.Arn
+      Events:
+        GetProfileAPI:
+          Type: Api
+          Properties:
+            Path: /profiles/{id}
+            Method: GET
+  CreateFavouriteMatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-create-favourite-match
+      CodeUri: functions/matches/favourites/create_match/
+      Handler: create_match.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/favourites/{id}
+            Method: POST
+  GetFavouriteMatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-favourite-match
+      CodeUri: functions/matches/favourites/get_match/
+      Handler: get_match.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/favourites/{id}/{match_id}
+            Method: GET
+  GetFavouriteMatchesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-favourite-matches
+      CodeUri: functions/matches/favourites/get_matches/
+      Handler: get_matches.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/favourites/{id}/
+            Method: GET
+  GetMatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-match
+      CodeUri: functions/matches/get_match/
+      Handler: get_match.lambda_handler
+      Runtime: python3.8
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/{match_id}/
+            Method: GET
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -127,6 +211,30 @@ Outputs:
   GetProfileFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
     Value: !GetAtt GetProfileFunction.Arn
+  CreateFavouriteMatchFunction:
+    Description: "Dota Clarity Create Favourite Match Lambda Function ARN"
+    Value: !GetAtt CreateFavouriteMatchFunction.Arn
+  CreateFavouriteMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Create Favourite Match function"
+    Value: !GetAtt CreateFavouriteMatchFunction.Arn
+  GetFavouriteMatchFunction:
+    Description: "Dota Clarity Get Favourite Match Lambda Function ARN"
+    Value: !GetAtt GetFavouriteMatchFunction.Arn
+  GetFavouriteMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Match function"
+    Value: !GetAtt GetFavouriteMatchFunction.Arn
+  GetFavouriteMatchesFunction:
+    Description: "Dota Clarity Get Favourite Matches Lambda Function ARN"
+    Value: !GetAtt GetFavouriteMatchesFunction.Arn
+  GetFavouriteMatchesFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Matches function"
+    Value: !GetAtt GetFavouriteMatchesFunction.Arn
+  GetMatchFunction:
+    Description: "Dota Clarity Get Match Lambda Function ARN"
+    Value: !GetAtt GetMatchFunction.Arn
+  GetMatchFunctionIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get Match function"
+    Value: !GetAtt GetMatchFunction.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket
