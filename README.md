@@ -2,15 +2,71 @@
 
 This project contains source code and supporting files for the serverless application Dota Clarity.
 
-The application uses several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project.
+It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and comprises of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS Cloudformation stack.
 
-## Dota Clarity REST API
+## Table of Contents
+   * [Infrastructure](#Infrastructure)
+   * [Prerequisites](#Prerequisites)
+   * [Deploy Dota Clarity to AWS](#Deploy-Dota-Clarity-to-AWS)
+   * [Cleanup AWS Cloudformation stack](#Cleanup-AWS-Cloudformation-stack)
+   * [Local development and testing](#Local-development-and-testing)
 
-Documentaion for the Dota Clarity REST API generated from the build of this application can be found here: [Dota Clarity REST API Resources](/docs/README.md).
+## Infrastructure
+
+The application stack contains the following resources.
+
+### DynamoDB
+
+#### dota-clarity-profiles-table
+
+Stores all profiles associated with a Dota Clarity account.
+
+Key schema:
+
+| Name | Type   | Key type | Description                     |
+| :--- | :----- | :------- | :------------------------------ |
+| id   | string | hash     | email of a dota clarity account |
+
+#### dota-clarity-matches-table
+
+Stores all matches favourited by Dota Clarity users.
+
+Key schema:
+
+| Name     | Type    | Key type | Description                     |
+| :------- | :------ | :------- |:------------------------------ |
+| id       | string  | hash     | email of a dota clarity account |
+| match_id | integer | range    | id of a verified dota match |
+
+### Lambda Functions
+
+#### dota-clarity-create-profile
+Loads the profile body received in the event, validates the data, and inserts the record into `dota-clarity-profiles-table`.
+
+#### dota-clarity-get-profile
+Gets the `id` parameter from the event, queries `dota-clarity-profiles-table`, and returns the profile.
+
+#### dota-clarity-get-match
+Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
+
+#### dota-clarity-create-favourite-match
+Loads the match body received in the event, validates the data, and inserts the record into `dota-clarity-matches-table`.
+
+#### dota-clarity-get-favourite-match
+Gets the `id` and `match_id` parameters from the event, queries `dota-clarity-matches-table` using the parameters, and returns the match.
+
+#### dota-clarity-get-favourite-matches
+Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same id, and returns the list of matches.
+
+### API Gateway
+
+Dota Clarity REST API to expose the application's profile and match data.  Resources and methods are linked to the Lambda functions above. 
+
+Documentation of the API can be found here: [Dota Clarity REST API Resources](/docs/README.md).
 
 ## Prerequisites
 
-To use the SAM CLI, you need the following tools installed.
+SAM CLI is used to build and deploy the application and requires the following tools to be installed.
 
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
@@ -30,7 +86,7 @@ _Note: if you would like to change the deployment configuration then use `sam de
 
 You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment.
 
-## Cleanup the AWS stack
+## Cleanup AWS Cloudformation stack
 
 To delete the Dota Clarity application that you have deployed, use the AWS CLI:
 
@@ -42,7 +98,7 @@ aws cloudformation delete-stack --stack-name dota-clarity
 
 ### Setup local environment
 
-**Ensure all pre-requisites are installed before continuing**
+#### Ensure all pre-requisites are installed before continuing
 
 In order to test the Dota Clarity API locally we need to setup the following.
 
@@ -50,7 +106,7 @@ In order to test the Dota Clarity API locally we need to setup the following.
 - DynamoDB Docker image
 - Local DynamoDB tables
 
-Setup the local environment by running the `setup-local.sh` shell script. You can simply press 'q' when the DynamoDB table previews appear.
+Setup the local environment by running `setup-local.sh`. You can simply press 'q' when the DynamoDB table previews appear.
 
 ```bash
 ./setup-local.sh
@@ -68,41 +124,37 @@ sam local start-api --parameter-overrides ParameterKey=Environment,ParameterValu
 
 Example payloads are provided in the `/payloads` directory and are used in POST requests below.
 
-#### Profiles
-
-**Create profile**
+#### Create profile
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:3000/profiles
 ```
 
-**Get profile**
+#### Get profile
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
 ```
 
-#### Matches
-
-**Get match**
+#### Get match
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/5392211187
 ```
 
-**Create favourite match**
+#### Create favourite match
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
 ```
 
-**Get favourite match**
+#### Get favourite match
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com/5392211187
 ```
 
-**Get all favourite matches**
+#### Get all favourite matches
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
@@ -116,9 +168,9 @@ You can also perform a scan on the local DynamoDB table to list all items.
 aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:8000
 ```
 
-### Cleanup the local environment
+### Cleanup local environment
 
-Cleanup the Docker container, Docker network, and DynamoDB tables by runing the `cleanup-local.sh` shell script:
+Cleanup the Docker container, Docker network, and DynamoDB tables by running `cleanup-local.sh`:
 
 ```bash
 ./cleanup-local.sh
