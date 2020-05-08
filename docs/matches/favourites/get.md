@@ -1,8 +1,8 @@
 # Get Favourite Match
 
-Get a match that a Dota Clarity user has favourited.
+Get match that a Dota Clarity user has favourited.
 
-**URL** : `/matches/favourites/{match_id}`
+**URL** : `/matches/favourites/{id}/{match_id}`
 
 **Method** : `GET`
 

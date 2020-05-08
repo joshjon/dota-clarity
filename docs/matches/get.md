@@ -14,7 +14,7 @@ Required
 | :-------- | :------ | :-------------- |
 | match_id  | integer | dota 2 match id |
 
-## Success Responses
+## Success Response
 
 **Code** : `200 OK`
 

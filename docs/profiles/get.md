@@ -1,6 +1,6 @@
 # Get Dota Clarity Profile
 
-Get the profile of a Dota Clarity user.
+Get profile of a Dota Clarity user.
 
 **URL** : `/profiles/{id}`
 
@@ -14,7 +14,7 @@ Required
 | :-------- | :----- | :-------------------------------- |
 | id        | string | user id of a dota clarity account |
 
-## Success Responses
+## Success Response
 
 **Code** : `200 OK`
 

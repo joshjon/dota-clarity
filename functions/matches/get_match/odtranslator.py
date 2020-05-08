@@ -27,6 +27,8 @@ class Translator:
         return lobby_types[lobby_type_id]
 
     def get_game_mode(self, game_mode_id):
+        if game_mode_id is None:
+            return "Unknown"
         f = open('game-mode.json')
         game_mode_data = json.load(f)
         return game_mode_data[str(game_mode_id)]
@@ -38,7 +40,10 @@ class Translator:
             2: "High Skill",
             3: "Very High Skill"
         }
-        return skills[skill_id]
+        if skill_id is None:
+            return skills[0]
+        else:
+            return skills[skill_id]
 
     def get_region(self, region_id):
         f = open("region.json")
@@ -57,7 +62,10 @@ class Translator:
             7: "Divine",
             8: "Immortal"
         }
-        return rank_tiers[rank_tier_id]
+        if rank_tier_id is None:
+            return "Unknown"
+        else:
+            return rank_tiers[rank_tier_id]
 
     def get_player_data(self, player_data):
         keep = ("account_id", "assists", "deaths", "denies", "gold", "gold_per_min", "hero_damage", "hero_healing", "hero_id", "kills",
