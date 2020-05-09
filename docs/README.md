@@ -9,9 +9,10 @@ A profile is the public profile that is associated to a Dota Clarity account.
 
 ### Matches
 
-A match is a public Dota 2 match retreived via the [OpenDota API](https://docs.opendota.com/). Upon retrieval, match data is transformed to use the Dota Clarity match schema. A match can also be saved to the favourites list of a Dota clarity user.
+A match is a public Dota 2 match retreived via the [OpenDota API](https://docs.opendota.com/). Upon retrieval, match data is transformed to align with Dota Clarity's expected match schema. A match can also be saved to the favourites list of a Dota clarity user.
 
 - **[<code>GET</code> Match](/docs/matches/get.md)**
+- **[<code>GET</code> All Matches](/docs/matches/get_all.md)**
 - **[<code>GET</code> Favourite Match](/docs/matches/favourites/get.md)**
 - **[<code>GET</code> All Favourite Matches](/docs/matches/favourites/get_all.md)**
 - **[<code>POST</code> Create Favourite Match](/docs/matches/favourites/post.md)**

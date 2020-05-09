@@ -167,6 +167,19 @@ Resources:
           Properties:
             Path: /matches/{match_id}/
             Method: GET
+  GetAllMatchesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-get-all-matches
+      CodeUri: functions/matches/get_all_matches/
+      Handler: get_all_matches.lambda_handler
+      Runtime: python3.8
+      Events:
+        CreateMatchAPI:
+          Type: Api
+          Properties:
+            Path: /matches/{steam_id}/
+            Method: GET
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -235,6 +248,12 @@ Outputs:
   GetMatchFunctionIamRole:
     Description: "Implicit IAM Role created for Dota Clarity Get Match function"
     Value: !GetAtt GetMatchFunction.Arn
+  GetAllMatchesFunction:
+    Description: "Dota Clarity Get All Matches Lambda Function ARN"
+    Value: !GetAtt GetAllMatches.Arn
+  GetAllMatchesIamRole:
+    Description: "Implicit IAM Role created for Dota Clarity Get All Matches function"
+    Value: !GetAtt GetAllMatches.Arn
   WebsiteURL:
     Value: !GetAtt 
       - DotaClarityS3Bucket

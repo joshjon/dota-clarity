@@ -1,6 +1,6 @@
 # Create Favourite match
 
-Create a favourite match for a Dota Clarity user. 
+Create a favourite match for a Dota Clarity user.
 
 **URL** : `/matches/favourites/{id}`
 
@@ -10,19 +10,18 @@ Create a favourite match for a Dota Clarity user.
 
 Required
 
-| Attribute | Type   | Description                       |
-| :-------- | :----- | :-------------------------------- |
-| id        | string | user id of a dota clarity account |
+| Attribute | Type    | Description        |
+| :-------- | :------ | :----------------- |
+| steam_id  | integer | steam32 account id |
 
 **Data Params** :
 
 A valid payload should be generated using the get `/matches/{match_id}` API.
 
-
 Required
 
 | Attribute     | Type    |
-| :------------ | :------ | 
+| :------------ | :------ |
 | match_id      | integer |
 | dire_score    | integer |
 | duration      | integer |
@@ -45,7 +44,7 @@ Required
 
 ```json
 {
-  "id": "bestdotaplayer@dota.com", 
+  "id": "bestdotaplayer@dota.com",
   "match_id": 5392211187
 }
 ```

@@ -49,6 +49,9 @@ Gets the `id` parameter from the event, queries `dota-clarity-profiles-table`, a
 #### dota-clarity-get-match
 Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
 
+#### dota-clarity-get-all-matches
+Gets the `steam_id` parameter from the event, makes a request to the OpenDota API to retrieve all match data for the given Steam ID, transforms the data to align with Dota Clarity's expected match schema, and returns all matches.
+
 #### dota-clarity-create-favourite-match
 Loads the match body received in the event, validates the data, and inserts the record into `dota-clarity-matches-table`.
 
@@ -56,7 +59,7 @@ Loads the match body received in the event, validates the data, and inserts the 
 Gets the `id` and `match_id` parameters from the event, queries `dota-clarity-matches-table` using the parameters, and returns the match.
 
 #### dota-clarity-get-favourite-matches
-Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same id, and returns the list of matches.
+Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same ID, and returns the list of matches.
 
 ### API Gateway
 
@@ -140,6 +143,12 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/b
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/5392211187
+```
+
+#### Get all matches
+
+```bash
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/68726794
 ```
 
 #### Create favourite match
