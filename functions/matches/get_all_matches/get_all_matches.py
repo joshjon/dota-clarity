@@ -22,12 +22,20 @@ def generate_response(statusCode, body):
 
 def get_all_open_dota_matches(steam_id):
     headers = {"Content-Type": "application/json"}
-    opendota_url = "https://api.opendota.com/api/players/" + steam_id + "/matches?sort"
+    opendota_url = "https://api.opendota.com/api/players/" + steam_id + "/matches"
     return requests.get(opendota_url, headers=headers)
     
 
 def lambda_handler(event, context):
     steam_id = event['pathParameters']['steam_id']
+    size = 49
+    offset = 0
+    
+    try:
+        offset = int(event["queryStringParameters"]['offset'])
+    except:
+        pass
+    
     od_response = get_all_open_dota_matches(steam_id)
     
     if od_response.status_code != 200:
@@ -40,7 +48,9 @@ def lambda_handler(event, context):
     if not all_matches:
         return generate_response(200, [])
 
-    for match in all_matches:
+    paged_matches = all_matches[offset:offset + size]
+
+    for match in paged_matches:
         # Transform values
         match["team"] = translator.get_team(match["player_slot"])
         match["lobby_type"] = translator.get_lobby_type(match["lobby_type"])
@@ -53,5 +63,11 @@ def lambda_handler(event, context):
         match.pop("version", None)
         match.pop("leaver_status", None)
 
-    logger.info("Retrieved match: " + json.dumps(all_matches))
-    return generate_response(200, json.dumps(all_matches))
+    response = {
+        "totalItems": len(all_matches),
+        "pageSize": len(paged_matches),
+        "items": paged_matches
+    }
+
+    logger.info("Success: " + str(size + 1) + " matches returned")
+    return generate_response(200, json.dumps(response))

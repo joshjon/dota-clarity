@@ -28,7 +28,6 @@ def generate_response(statusCode, body):
     }
 
 def lambda_handler(event, context):
-    id_key = event['pathParameters']['id']
     if "body" not in event:
         message = "A body as not been provided in the request"
         logger.error(message)
@@ -42,8 +41,6 @@ def lambda_handler(event, context):
         message = "Missing required key: match_id"
         logger.error(message)
         return generate_response(400, message)
-    
-    match_data["id"] = id_key
 
     # Add match to DynamoDB
     try:
@@ -55,7 +52,7 @@ def lambda_handler(event, context):
         return generate_response(400, "Unable to add match to DynamoDb: " + e.response['Error']['Message'])
     else:
         response = {
-                "id": id_key,
+                "id": match_data["id"],
                 "match_id": match_data["match_id"]
             }
         return generate_response(201, json.dumps(response))

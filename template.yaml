@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   dota-clarity
@@ -7,12 +7,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 10 
-  Api:
-    Cors:
-      AllowMethods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
-      AllowHeaders: "'Content-Type'"
-      AllowOrigin: "'http://localhost:8080'"
+    Timeout: 10
 
 Parameters:
   Environment:
@@ -24,11 +19,70 @@ Parameters:
       - aws
 
 Resources:
-  ProfilesTable:
-    Type: 'AWS::DynamoDB::Table'
+  DotaClarityApi:
+    Type: AWS::Serverless::Api
     Properties:
-      TableName: ${AWS::StackName}-profiles-table
-      ProvisionedThroughput: 
+      StageName: Prod
+      Cors:
+        AllowMethods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: DotaClarityCognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: False
+        Authorizers:
+          DotaClarityCognitoAuthorizer:
+            UserPoolArn: !GetAtt DotaClarityCognitoUserPool.Arn
+
+  DotaClarityCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: dota-clarity-user-pool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+      EmailVerificationMessage: "Your Dota Clarity account verification code is {####}."
+      EmailVerificationSubject: "Dota Clarity account verification code"
+
+  DotaClarityCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: dota-clarity-user-pool
+      UserPoolId: !Ref DotaClarityCognitoUserPool
+      GenerateSecret: false
+
+  # PreSignupLambdaFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     InlineCode: |
+  #       exports.handler = async (event, context, callback) => {
+  #         event.response = { autoConfirmUser: true }
+  #         return event
+  #       }
+  #     Handler: index.handler
+  #     MemorySize: 128
+  #     Runtime: nodejs12.x
+  #     Timeout: 3
+  #     Events:
+  #       CognitoUserPoolPreSignup:
+  #         Type: Cognito
+  #         Properties:
+  #           UserPool: !Ref DotaClarityCognitoUserPool
+  #           Trigger: PreSignUp
+
+  ProfilesTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: !Sub ${AWS::StackName}-profiles-table
+      ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
       AttributeDefinitions:
@@ -38,10 +92,10 @@ Resources:
         - AttributeName: id
           KeyType: HASH
   MatchesTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
-      TableName: ${AWS::StackName}-matches-table
-      ProvisionedThroughput: 
+      TableName: !Sub ${AWS::StackName}-matches-table
+      ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
       AttributeDefinitions:
@@ -54,6 +108,7 @@ Resources:
           KeyType: HASH
         - AttributeName: "match_id"
           KeyType: "RANGE"
+
   CreateProfileFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -73,8 +128,10 @@ Resources:
         CreateProfileAPI:
           Type: Api
           Properties:
-            Path: /profiles/
+            RestApiId: !Ref DotaClarityApi
+            Path: /profiles
             Method: POST
+
   GetProfileFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -94,8 +151,10 @@ Resources:
         GetProfileAPI:
           Type: Api
           Properties:
+            RestApiId: !Ref DotaClarityApi
             Path: /profiles/{id}
             Method: GET
+
   CreateFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -115,8 +174,10 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
-            Path: /matches/favourites/{id}
+            RestApiId: !Ref DotaClarityApi
+            Path: /matches/favourites
             Method: POST
+
   GetFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -136,8 +197,10 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
+            RestApiId: !Ref DotaClarityApi
             Path: /matches/favourites/{id}/{match_id}
             Method: GET
+
   GetFavouriteMatchesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -157,8 +220,10 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
+            RestApiId: !Ref DotaClarityApi
             Path: /matches/favourites/{id}/
             Method: GET
+
   GetMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -170,8 +235,10 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
+            RestApiId: !Ref DotaClarityApi
             Path: /matches/{match_id}/
             Method: GET
+
   GetAllMatchesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -183,92 +250,68 @@ Resources:
         CreateMatchAPI:
           Type: Api
           Properties:
-            Path: /matches/{steam_id}/
+            RestApiId: !Ref DotaClarityApi
+            Path: /matches/players/{steam_id}/
             Method: GET
-  DotaClarityS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: PublicRead
-      WebsiteConfiguration:
-        IndexDocument: landing.html
-        ErrorDocument: error.html
-  DotaClarityS3BucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      PolicyDocument:
-        Id: Dota Clarity Frontend Bucket Policy
-        Version: 2012-10-17
-        Statement:
-          - Sid: PublicReadForGetBucketObjects
-            Effect: Allow
-            Principal: '*'
-            Action: 's3:GetObject'
-            Resource: !Join 
-              - ''
-              - - 'arn:aws:s3:::'
-                - !Ref DotaClarityS3Bucket
-                - /*
-      Bucket: !Ref DotaClarityS3Bucket
+
+  # DotaClarityS3Bucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     AccessControl: PublicRead
+  #     WebsiteConfiguration:
+  #       IndexDocument: landing.html
+  #       ErrorDocument: error.html
+
+  # DotaClarityS3BucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     PolicyDocument:
+  #       Id: Dota Clarity Frontend Bucket Policy
+  #       Version: 2012-10-17
+  #       Statement:
+  #         - Sid: PublicReadForGetBucketObjects
+  #           Effect: Allow
+  #           Principal: "*"
+  #           Action: "s3:GetObject"
+  #           Resource: !Join
+  #             - ""
+  #             - - "arn:aws:s3:::"
+  #               - !Ref DotaClarityS3Bucket
+  #               - /*
+  #     Bucket: !Ref DotaClarityS3Bucket
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  DotaClarityApi:
-    Description: "API Gateway endpoint URL for Prod stage for Dota Clarity Functions"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-  CreateProfileFunction:
-    Description: "Dota Clarity Create Profile Lambda Function ARN"
-    Value: !GetAtt CreateProfileFunction.Arn
-  CreateProfileFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Create Profile function"
-    Value: !GetAtt CreateProfileFunction.Arn
-  GetProfileFunction:
-    Description: "Dota Clarity Get Profile Lambda Function ARN"
-    Value: !GetAtt GetProfileFunction.Arn
-  GetProfileFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get Profile function"
-    Value: !GetAtt GetProfileFunction.Arn
-  CreateFavouriteMatchFunction:
-    Description: "Dota Clarity Create Favourite Match Lambda Function ARN"
-    Value: !GetAtt CreateFavouriteMatchFunction.Arn
-  CreateFavouriteMatchFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Create Favourite Match function"
-    Value: !GetAtt CreateFavouriteMatchFunction.Arn
-  GetFavouriteMatchFunction:
-    Description: "Dota Clarity Get Favourite Match Lambda Function ARN"
-    Value: !GetAtt GetFavouriteMatchFunction.Arn
-  GetFavouriteMatchFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Match function"
-    Value: !GetAtt GetFavouriteMatchFunction.Arn
-  GetFavouriteMatchesFunction:
-    Description: "Dota Clarity Get Favourite Matches Lambda Function ARN"
-    Value: !GetAtt GetFavouriteMatchesFunction.Arn
-  GetFavouriteMatchesFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get Favourite Matches function"
-    Value: !GetAtt GetFavouriteMatchesFunction.Arn
-  GetMatchFunction:
-    Description: "Dota Clarity Get Match Lambda Function ARN"
-    Value: !GetAtt GetMatchFunction.Arn
-  GetMatchFunctionIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get Match function"
-    Value: !GetAtt GetMatchFunction.Arn
-  GetAllMatchesFunction:
-    Description: "Dota Clarity Get All Matches Lambda Function ARN"
-    Value: !GetAtt GetAllMatches.Arn
-  GetAllMatchesIamRole:
-    Description: "Implicit IAM Role created for Dota Clarity Get All Matches function"
-    Value: !GetAtt GetAllMatches.Arn
-  WebsiteURL:
-    Value: !GetAtt 
-      - DotaClarityS3Bucket
-      - WebsiteURL
-    Description: URL for Dota Clarity website hosted on S3
-  S3BucketSecureURL:
-    Value: !Join 
-      - ''
-      - - 'https://'
-        - !GetAtt 
-          - DotaClarityS3Bucket
-          - DomainName
-    Description: Name of S3 bucket to hold website content
+  Region:
+    Description: "Region"
+    Value: !Ref AWS::Region
+
+  ApiId:
+    Description: "API ID"
+    Value: !Ref DotaClarityApi
+
+  DotaClarityApiUrl:
+    Description: "Dota Clarity API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${DotaClarityApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+  CognitoUserPoolId:
+    Description: "Cognito User Pool Id"
+    Value: !Ref DotaClarityCognitoUserPool
+
+  CognitoUserPoolClientId:
+    Description: "Cognito User Pool Client Id"
+    Value: !Ref DotaClarityCognitoUserPoolClient
+
+  # WebsiteURL:
+  #   Value: !GetAtt
+  #     - DotaClarityS3Bucket
+  #     - WebsiteURL
+  #   Description: URL for Dota Clarity website hosted on S3
+
+  # S3BucketSecureURL:
+  #   Value: !Join
+  #     - ""
+  #     - - "https://"
+  #       - !GetAtt
+  #         - DotaClarityS3Bucket
+  #         - DomainName
+  #   Description: Name of S3 bucket to hold website content
