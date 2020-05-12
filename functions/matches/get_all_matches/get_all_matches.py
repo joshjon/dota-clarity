@@ -33,7 +33,7 @@ def lambda_handler(event, context):
     
     try:
         offset = int(event["queryStringParameters"]['offset'])
-    except TypeError:
+    except:
         pass
     
     od_response = get_all_open_dota_matches(steam_id)
@@ -65,9 +65,9 @@ def lambda_handler(event, context):
 
     response = {
         "totalItems": len(all_matches),
-        "pageSize": size + 1,
+        "pageSize": len(paged_matches),
         "items": paged_matches
     }
 
-    logger.info("Success: " + size + 1 + " matches returned")
+    logger.info("Success: " + str(size + 1) + " matches returned")
     return generate_response(200, json.dumps(response))
