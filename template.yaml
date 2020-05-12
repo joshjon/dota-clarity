@@ -8,6 +8,11 @@ Description: >
 Globals:
   Function:
     Timeout: 10 
+  Api:
+    Cors:
+      AllowMethods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+      AllowHeaders: "'Content-Type'"
+      AllowOrigin: "'http://localhost:8080'"
 
 Parameters:
   Environment:
@@ -211,7 +216,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   DotaClarityApi:
     Description: "API Gateway endpoint URL for Prod stage for Dota Clarity Functions"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/profiles/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
   CreateProfileFunction:
     Description: "Dota Clarity Create Profile Lambda Function ARN"
     Value: !GetAtt CreateProfileFunction.Arn
