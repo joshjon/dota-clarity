@@ -28,7 +28,7 @@ def get_all_open_dota_matches(steam_id):
 
 def lambda_handler(event, context):
     steam_id = event['pathParameters']['steam_id']
-    size = 49
+    size = 50
     offset = 0
     
     try:
@@ -69,5 +69,5 @@ def lambda_handler(event, context):
         "items": paged_matches
     }
 
-    logger.info("Success: " + str(size + 1) + " matches returned")
+    logger.info("Success: " + str(len(paged_matches)) + " matches returned")
     return generate_response(200, json.dumps(response))

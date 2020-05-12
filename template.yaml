@@ -25,7 +25,7 @@ Resources:
       StageName: Prod
       Cors:
         AllowMethods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
-        AllowHeaders: "'Content-Type'"
+        AllowHeaders: "'Content-Type,Authorization'"
         AllowOrigin: "'*'"
       Auth:
         DefaultAuthorizer: DotaClarityCognitoAuthorizer
@@ -58,25 +58,6 @@ Resources:
       ClientName: dota-clarity-user-pool
       UserPoolId: !Ref DotaClarityCognitoUserPool
       GenerateSecret: false
-
-  # PreSignupLambdaFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     InlineCode: |
-  #       exports.handler = async (event, context, callback) => {
-  #         event.response = { autoConfirmUser: true }
-  #         return event
-  #       }
-  #     Handler: index.handler
-  #     MemorySize: 128
-  #     Runtime: nodejs12.x
-  #     Timeout: 3
-  #     Events:
-  #       CognitoUserPoolPreSignup:
-  #         Type: Cognito
-  #         Properties:
-  #           UserPool: !Ref DotaClarityCognitoUserPool
-  #           Trigger: PreSignUp
 
   ProfilesTable:
     Type: "AWS::DynamoDB::Table"
