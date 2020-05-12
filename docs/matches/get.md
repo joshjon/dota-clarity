@@ -2,7 +2,7 @@
 
 Get any public Dota 2 match.
 
-**URL** : `/matches/{id}/{match_id}`
+**URL** : `/matches/{match_id}`
 
 **Method** : `GET`
 
