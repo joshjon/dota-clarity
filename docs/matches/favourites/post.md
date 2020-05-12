@@ -2,7 +2,7 @@
 
 Create a favourite match for a Dota Clarity user.
 
-**URL** : `/matches/favourites/{id}`
+**URL** : `/matches/favourites`
 
 **Method** : `POST`
 
@@ -10,9 +10,10 @@ Create a favourite match for a Dota Clarity user.
 
 Required
 
-| Attribute | Type    | Description        |
-| :-------- | :------ | :----------------- |
-| steam_id  | integer | steam32 account id |
+| Attribute | Type    | Description                       |
+| :-------- | :------ | :-------------------------------- |
+| id        | integer | user id of a dota clarity account |
+| steam_id  | integer | steam32 account id                |
 
 **Data Params** :
 
@@ -22,6 +23,8 @@ Required
 
 | Attribute     | Type    |
 | :------------ | :------ |
+| id            | integer |
+| steam_id      | integer |
 | match_id      | integer |
 | dire_score    | integer |
 | duration      | integer |

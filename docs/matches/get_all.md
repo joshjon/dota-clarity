@@ -2,7 +2,7 @@
 
 Get all public Dota 2 matches of a Steam account.
 
-**URL** : `/matches/{steam_id}`
+**URL** : `/matches/players/{steam_id}`
 
 **Method** : `GET`
 
