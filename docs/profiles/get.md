@@ -22,7 +22,7 @@ Required
 
 ```json
 {
-  "steamid": "12345678",
+  "steam_id": "12345678",
   "country_code": "AU",
   "mmr": 2375,
   "rank_tier": 21,

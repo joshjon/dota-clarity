@@ -28,14 +28,6 @@ def get_all_open_dota_matches(steam_id):
 
 def lambda_handler(event, context):
     steam_id = event['pathParameters']['steam_id']
-    size = 50
-    offset = 0
-    
-    try:
-        offset = int(event["queryStringParameters"]['offset'])
-    except:
-        pass
-    
     od_response = get_all_open_dota_matches(steam_id)
     
     if od_response.status_code != 200:
@@ -48,9 +40,7 @@ def lambda_handler(event, context):
     if not all_matches:
         return generate_response(200, [])
 
-    paged_matches = all_matches[offset:offset + size]
-
-    for match in paged_matches:
+    for match in all_matches:
         # Transform values
         match["team"] = translator.get_team(match["player_slot"])
         match["lobby_type"] = translator.get_lobby_type(match["lobby_type"])
@@ -65,9 +55,9 @@ def lambda_handler(event, context):
 
     response = {
         "totalItems": len(all_matches),
-        "pageSize": len(paged_matches),
-        "items": paged_matches
+        "pageSize": len(all_matches),
+        "items": all_matches
     }
 
-    logger.info("Success: " + str(len(paged_matches)) + " matches returned")
+    logger.info("Success: " + str(len(all_matches)) + " matches returned")
     return generate_response(200, json.dumps(response))

@@ -6,24 +6,15 @@ Create a favourite match for a Dota Clarity user.
 
 **Method** : `POST`
 
-**URL Params** :
-
-Required
-
-| Attribute | Type    | Description                       |
-| :-------- | :------ | :-------------------------------- |
-| id        | integer | user id of a dota clarity account |
-| steam_id  | integer | steam32 account id                |
-
 **Data Params** :
 
-A valid payload should be generated using the get `/matches/{match_id}` API.
+Generate a valid payload by performing a GET at `/matches/{match_id}` where you can then add a steam_id and id to the response match data.
 
 Required
 
 | Attribute     | Type    |
 | :------------ | :------ |
-| id            | integer |
+| id            | string  |
 | steam_id      | integer |
 | match_id      | integer |
 | dire_score    | integer |

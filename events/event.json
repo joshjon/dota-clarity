@@ -1,5 +1,5 @@
 {
-  "body": "{\"id\":\"test@test.com\",\"steamid\":\"68726794\",\"roles\":[\"support\"],\"age\":23}",
+  "body": "{\"id\":\"test@test.com\",\"steam_id\":\"68726794\",\"roles\":[\"support\"],\"age\":23}",
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",

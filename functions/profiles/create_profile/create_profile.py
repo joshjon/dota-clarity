@@ -15,9 +15,9 @@ def get_ddb_table():
     else:
         return boto3.resource('dynamodb').Table(os.environ["TABLE_NAME"])
 
-def get_open_dota_profile(steamid):
+def get_open_dota_profile(steam_id):
     headers = {"Content-Type": "application/json"}
-    opendota_url = "https://api.opendota.com/api/players/" + steamid
+    opendota_url = "https://api.opendota.com/api/players/" + str(steam_id)
     return requests.get(opendota_url, headers=headers)
 
 def generate_response(statusCode, body):
@@ -43,7 +43,7 @@ def lambda_handler(event, context):
     profile_data = json.loads(event["body"])
 
     # Ensure event body contains all required keys
-    expected_keys = ["id", "steamid", "roles", "age"]
+    expected_keys = ["id", "steam_id", "roles", "age"]
     for key in expected_keys:
         if key not in profile_data:
             message = "Missing required key: " + key
@@ -51,7 +51,7 @@ def lambda_handler(event, context):
             return generate_response(400, message)
 
     # Get profile from OpenDota API
-    od_response = get_open_dota_profile(profile_data["steamid"])
+    od_response = get_open_dota_profile(profile_data["steam_id"])
 
     if od_response.status_code != 200:
         message = "No Dota account is affiliated with the provided Steam ID"
@@ -77,6 +77,6 @@ def lambda_handler(event, context):
     else:
         response = {
             "id": profile_data["id"],
-            "steamid": profile_data["steamid"]
+            "steam_id": profile_data["steam_id"]
         }
         return generate_response(201, json.dumps(response))

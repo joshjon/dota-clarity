@@ -7,7 +7,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 10
+    Timeout: 15
 
 Parameters:
   Environment:
@@ -152,7 +152,7 @@ Resources:
           TABLE_NAME: !Ref MatchesTable
           TABLE_ARN: !GetAtt MatchesTable.Arn
       Events:
-        CreateMatchAPI:
+        CreateFavouriteMatchAPI:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
@@ -175,7 +175,7 @@ Resources:
           TABLE_NAME: !Ref MatchesTable
           TABLE_ARN: !GetAtt MatchesTable.Arn
       Events:
-        CreateMatchAPI:
+        GetFavouriteMatchAPI:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
@@ -198,12 +198,35 @@ Resources:
           TABLE_NAME: !Ref MatchesTable
           TABLE_ARN: !GetAtt MatchesTable.Arn
       Events:
-        CreateMatchAPI:
+        GetFavouriteMatchesAPI:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
             Path: /matches/favourites/{id}/
             Method: GET
+  
+  DeleteFavouriteMatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-delete-favourite-match
+      CodeUri: functions/matches/favourites/delete_match/
+      Handler: delete_match.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MatchesTable
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          TABLE_NAME: !Ref MatchesTable
+          TABLE_ARN: !GetAtt MatchesTable.Arn
+      Events:
+        DeleteFavouriteMatchAPI:
+          Type: Api
+          Properties:
+            RestApiId: !Ref DotaClarityApi
+            Path: /matches/favourites/{id}/{match_id}
+            Method: DELETE
 
   GetMatchFunction:
     Type: AWS::Serverless::Function
@@ -213,7 +236,7 @@ Resources:
       Handler: get_match.lambda_handler
       Runtime: python3.8
       Events:
-        CreateMatchAPI:
+        GetMatchAPI:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
@@ -228,7 +251,7 @@ Resources:
       Handler: get_all_matches.lambda_handler
       Runtime: python3.8
       Events:
-        CreateMatchAPI:
+        GetAllMatchesAPI:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi

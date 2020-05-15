@@ -148,7 +148,7 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/53
 #### Get all matches
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/68726794
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/players/68726794
 ```
 
 #### Create favourite match

@@ -1,10 +1,22 @@
 import json
 
 class Translator:
-    def get_hero_data(self, hero_id):
+    
+    def __init__(self):
         f = open('heroes.json')
-        heroes = json.load(f)
-        for hero in heroes:
+        self.heroes = json.load(f)
+        f.close()
+
+        f = open('game-mode.json')
+        self.game_mode_data = json.load(f)
+        f.close()
+
+        f = open("region.json")
+        self.region_data = json.load(f)
+        f.close()
+
+    def get_hero_data(self, hero_id):
+        for hero in self.heroes:
             if hero["id"] == hero_id:
                 hero_data = {}
                 hero_data["hero_img"] = "http://cdn.dota2.com/" + hero["img"]
@@ -34,9 +46,7 @@ class Translator:
     def get_game_mode(self, game_mode_id):
         if game_mode_id is None:
             return "Unknown"
-        f = open('game-mode.json')
-        game_mode_data = json.load(f)
-        return game_mode_data[str(game_mode_id)]
+        return self.game_mode_data[str(game_mode_id)]
 
     def get_skill(self, skill_id):
         skills = {
@@ -51,9 +61,7 @@ class Translator:
             return skills[skill_id]
 
     def get_region(self, region_id):
-        f = open("region.json")
-        region_data = json.load(f)
-        return region_data[str(region_id)]
+        return self.region_data[str(region_id)]
 
     def get_rank_tier(self, rank_tier_id):
         rank_tiers = {
