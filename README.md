@@ -49,11 +49,11 @@ Key schema:
 
 #### dota-clarity-get-match
 
-Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
+Gets `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
 
 #### dota-clarity-get-all-matches
 
-Gets the `steam_id` parameter from the event, makes a request to the OpenDota API to retrieve all match data for the given Steam ID, transforms the data to align with Dota Clarity's expected match schema, and returns all matches.
+Gets `steam_id` parameter from the event, makes a request to the OpenDota API to retrieve all match data for the given Steam ID, transforms the data to align with Dota Clarity's expected match schema, and returns all matches.
 
 #### dota-clarity-create-favourite-match
 
@@ -61,11 +61,15 @@ Loads the match body received in the event, validates the data, and inserts the 
 
 #### dota-clarity-get-favourite-match
 
-Gets the `id` and `match_id` parameters from the event, queries `dota-clarity-matches-table` using the parameters, and returns the match.
+Gets `id` and `match_id` parameters from the event, queries `dota-clarity-matches-table` using the parameters, and returns the match.
 
-#### dota-clarity-get-favourite-matches
+#### dota-clarity-get-all-favourite-matches
 
-Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same ID, and returns the list of matches.
+Gets `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same ID, and returns the list of matches.
+
+#### dota-clarity-delete-favourite-matche
+
+Gets `id` and `match_id` parameters from the event and deletes the favourite match from `dota-clarity-matches-table`.
 
 ### API Gateway
 
@@ -177,6 +181,12 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/fa
 
 ```bash
 curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50
+```
+
+#### Delete favourite match
+
+```bash
+curl -X DELETE -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50/5392211187
 ```
 
 #### Scan table
