@@ -5,15 +5,20 @@ This project contains source code and supporting files for the serverless applic
 It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS CloudFormation stack.
 
 ## Table of Contents
-   * [Infrastructure](#Infrastructure)
-   * [Prerequisites](#Prerequisites)
-   * [Deploy Dota Clarity to AWS](#Deploy-Dota-Clarity-to-AWS)
-   * [Cleanup AWS CloudFormation stack](#Cleanup-AWS-CloudFormation-stack)
-   * [Local development and testing](#Local-development-and-testing)
+
+- [Infrastructure](#Infrastructure)
+- [Prerequisites](#Prerequisites)
+- [Deploy Dota Clarity to AWS](#Deploy-Dota-Clarity-to-AWS)
+- [Cleanup AWS CloudFormation stack](#Cleanup-AWS-CloudFormation-stack)
+- [Local development and testing](#Local-development-and-testing)
 
 ## Infrastructure
 
-The application stack contains the following resources.
+### CloudFormation
+
+CloudFormation provides a common method to model and provision AWS resources in an automated and secure manner. All of Dota Clarity's AWS resources are defined using the YAML programming language in `template.yaml`. This file is then interpreted by CloudFormation to create the entire application stack, and ultimately acts as the app's single source of truth.
+
+The resources in the Dota Clarity application stack are outlined below.
 
 ### CloudFront
 
@@ -29,47 +34,42 @@ Provides authentication, authorization, and user management for Dota Clarity. Al
 
 ### DynamoDB
 
-#### dota-clarity-profiles-table
-
-Stores all profiles associated with a Dota Clarity account.
-
-Key schema:
-
-| Name | Type   | Key type | Description                     |
-| :--- | :----- | :------- | :------------------------------ |
-| id   | string | hash     | email of a dota clarity account |
-
 #### dota-clarity-matches-table
 
 Stores all matches favourited by Dota Clarity users.
 
 Key schema:
 
-| Name     | Type    | Key type | Description                     |
-| :------- | :------ | :------- |:------------------------------ |
-| id       | string  | hash     | email of a dota clarity account |
-| match_id | integer | range    | id of a verified dota match |
+| Name     | Type    | Key type | Description                          |
+| :------- | :------ | :------- | :----------------------------------- |
+| id       | string  | hash     | cognito id of a dota clarity account |
+| match_id | integer | range    | id of a verified dota match          |
 
 ### Lambda Functions
 
 #### dota-clarity-get-match
+
 Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
 
 #### dota-clarity-get-all-matches
+
 Gets the `steam_id` parameter from the event, makes a request to the OpenDota API to retrieve all match data for the given Steam ID, transforms the data to align with Dota Clarity's expected match schema, and returns all matches.
 
 #### dota-clarity-create-favourite-match
+
 Loads the match body received in the event, validates the data, and inserts the record into `dota-clarity-matches-table`.
 
 #### dota-clarity-get-favourite-match
+
 Gets the `id` and `match_id` parameters from the event, queries `dota-clarity-matches-table` using the parameters, and returns the match.
 
 #### dota-clarity-get-favourite-matches
+
 Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same ID, and returns the list of matches.
 
 ### API Gateway
 
-Dota Clarity REST API to expose the application's profile and match data. It is authenticated using Amazon Cognito User Pools with every request requiring an access token. Resources and methods are linked to the Lambda functions above. 
+Dota Clarity REST API to expose the application's match data. It is authenticated using Amazon Cognito User Pools with every request requiring an access token. Resources and methods are linked to the Lambda functions above.
 
 Documentation of the API can be found here: [Dota Clarity REST API Resources](/docs/README.md).
 
@@ -97,7 +97,6 @@ _Note: if you would like to change the deployment configuration then use `sam de
 
 ### 2. Configure and deploy the client
 
-<!-- You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment. -->
 When the backend deployment completes your terminal will print the outputs of the stack. Copy the values of the following outputs and paste them into `client/js/config.js`
 
 - `CognitoUserPoolId`
@@ -110,7 +109,7 @@ Deploy the client to S3 using the `BucketName` output value.
 aws s3 cp website s3://<BucketName value> --recursive --acl public-read
 ```
 
-You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
+You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. <d1zx0ql70u7omk.cloudfront.net>.
 
 ## Cleanup AWS CloudFormation stack
 
@@ -185,7 +184,7 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/fa
 You can also perform a scan on the local DynamoDB table to list all items.
 
 ```bash
-aws dynamodb scan --table-name dota-clarity-profiles-table --endpoint-url http://localhost:8000
+aws dynamodb scan --table-name dota-clarity-matches-table --endpoint-url http://localhost:8000
 ```
 
 ### Cleanup local environment
