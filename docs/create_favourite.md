@@ -6,6 +6,16 @@ Create a favourite match for a Dota Clarity user.
 
 **Method** : `POST`
 
+**Auth required** : YES
+
+**Headers** :
+
+Required
+
+| Header        | Description                    |
+| :------------ | :----------------------------- |
+| Authorization | cognito user pool access token |
+
 **Data Params** :
 
 Generate a valid payload by performing a GET at `/matches/{match_id}` where you can then add a steam_id and id to the response match data.
@@ -38,7 +48,7 @@ Required
 
 ```json
 {
-  "id": "bestdotaplayer@dota.com",
+  "id": "4ae52f50-34b2-4f22-8916-5126a64522ce",
   "match_id": 5392211187
 }
 ```

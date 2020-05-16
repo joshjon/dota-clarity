@@ -15,6 +15,18 @@ It is built using the [AWS Serverless Application Model](https://docs.aws.amazon
 
 The application stack contains the following resources.
 
+### CloudFront
+
+Content Delivery Network (CDN) to deliver the Dota Clarity website. Serves content through a worldwide network of data centers called Edge Locations. Content is cached and served at these Edge Locations to provide content closer to where viewers are located and improve perfomance.
+
+### S3 Bucket
+
+Hosts the static web content and client side scripts for the Dota Clarity website.
+
+### Cognito User Pool
+
+Provides authentication, authorization, and user management for Dota Clarity. Allows users to register and sign in with an email and password.
+
 ### DynamoDB
 
 #### dota-clarity-profiles-table
@@ -40,12 +52,6 @@ Key schema:
 
 ### Lambda Functions
 
-#### dota-clarity-create-profile
-Loads the profile body received in the event, validates the data, and inserts the record into `dota-clarity-profiles-table`.
-
-#### dota-clarity-get-profile
-Gets the `id` parameter from the event, queries `dota-clarity-profiles-table`, and returns the profile.
-
 #### dota-clarity-get-match
 Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
 
@@ -63,7 +69,7 @@ Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for
 
 ### API Gateway
 
-Dota Clarity REST API to expose the application's profile and match data.  Resources and methods are linked to the Lambda functions above. 
+Dota Clarity REST API to expose the application's profile and match data. It is authenticated using Amazon Cognito User Pools with every request requiring an access token. Resources and methods are linked to the Lambda functions above. 
 
 Documentation of the API can be found here: [Dota Clarity REST API Resources](/docs/README.md).
 
@@ -144,18 +150,6 @@ sam local start-api --parameter-overrides ParameterKey=Environment,ParameterValu
 
 Example payloads are provided in the `/payloads` directory and are used in POST requests below.
 
-#### Create profile
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:3000/profiles
-```
-
-#### Get profile
-
-```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
-```
-
 #### Get match
 
 ```bash
@@ -171,19 +165,19 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/pl
 #### Create favourite match
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/4ae52f50
 ```
 
 #### Get favourite match
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com/5392211187
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50/5392211187
 ```
 
 #### Get all favourite matches
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50
 ```
 
 #### Scan table

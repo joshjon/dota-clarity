@@ -6,6 +6,8 @@ Get any public Dota 2 match.
 
 **Method** : `GET`
 
+**Auth required** : YES
+
 **URL Params** :
 
 Required
@@ -13,6 +15,14 @@ Required
 | Attribute | Type    | Description     |
 | :-------- | :------ | :-------------- |
 | match_id  | integer | dota 2 match id |
+
+**Headers** :
+
+Required
+
+| Header        | Description                    |
+| :------------ | :----------------------------- |
+| Authorization | cognito user pool access token |
 
 ## Success Response
 

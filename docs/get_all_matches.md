@@ -1,10 +1,12 @@
 # Get Dota 2 Match
 
-Get all public Dota 2 matches of a Steam account.
+Get all public Dota 2 matches for a Steam account.
 
 **URL** : `/matches/players/{steam_id}`
 
 **Method** : `GET`
+
+**Auth required** : YES
 
 **URL Params** :
 
@@ -12,7 +14,15 @@ Required
 
 | Attribute | Type    | Description     |
 | :-------- | :------ | :-------------- |
-| match_id  | integer | dota 2 match id |
+| steam_id  | integer | dota 2 steam id |
+
+**Headers** :
+
+Required
+
+| Header        | Description                    |
+| :------------ | :----------------------------- |
+| Authorization | cognito user pool access token |
 
 ## Success Response
 

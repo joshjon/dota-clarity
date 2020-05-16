@@ -6,6 +6,8 @@ Get match that a Dota Clarity user has favourited.
 
 **Method** : `GET`
 
+**Auth required** : YES
+
 **URL Params** :
 
 Required
@@ -14,6 +16,14 @@ Required
 | :-------- | :------ | :-------------------------------- |
 | id        | string  | user id of a dota clarity account |
 | match_id  | integer | dota 2 match id                   |
+
+**Headers** :
+
+Required
+
+| Header        | Description                    |
+| :------------ | :----------------------------- |
+| Authorization | cognito user pool access token |
 
 ## Success Responses
 

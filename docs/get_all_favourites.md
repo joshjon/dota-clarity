@@ -1,10 +1,12 @@
 # Get All Favourite Matches
 
-Get all matches that a Dota Clarity user has favourited.
+Get all favourite matches for a Dota Clarity account.
 
 **URL** : `/matches/favourites/{id}`
 
 **Method** : `GET`
+
+**Auth required** : YES
 
 **URL Params** :
 
@@ -13,6 +15,14 @@ Required
 | Attribute | Type   | Description                       |
 | :-------- | :----- | :-------------------------------- |
 | id        | string | user id of a dota clarity account |
+
+**Headers** :
+
+Required
+
+| Header        | Description                    |
+| :------------ | :----------------------------- |
+| Authorization | cognito user pool access token |
 
 ## Success Response
 
