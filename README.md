@@ -2,18 +2,30 @@
 
 This project contains source code and supporting files for the serverless application Dota Clarity.
 
-It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS Cloudformation stack.
+It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS CloudFormation stack.
 
 ## Table of Contents
    * [Infrastructure](#Infrastructure)
    * [Prerequisites](#Prerequisites)
    * [Deploy Dota Clarity to AWS](#Deploy-Dota-Clarity-to-AWS)
-   * [Cleanup AWS Cloudformation stack](#Cleanup-AWS-Cloudformation-stack)
+   * [Cleanup AWS CloudFormation stack](#Cleanup-AWS-CloudFormation-stack)
    * [Local development and testing](#Local-development-and-testing)
 
 ## Infrastructure
 
 The application stack contains the following resources.
+
+### CloudFront
+
+Content Delivery Network (CDN) to deliver the Dota Clarity website. Serves content through a worldwide network of data centers called Edge Locations. Content is cached and served at these Edge Locations to provide content closer to where viewers are located and improve perfomance.
+
+### S3 Bucket
+
+Hosts the static web content and client side scripts for the Dota Clarity website.
+
+### Cognito User Pool
+
+Provides authentication, authorization, and user management for Dota Clarity. Allows users to register and sign in with an email and password.
 
 ### DynamoDB
 
@@ -40,12 +52,6 @@ Key schema:
 
 ### Lambda Functions
 
-#### dota-clarity-create-profile
-Loads the profile body received in the event, validates the data, and inserts the record into `dota-clarity-profiles-table`.
-
-#### dota-clarity-get-profile
-Gets the `id` parameter from the event, queries `dota-clarity-profiles-table`, and returns the profile.
-
 #### dota-clarity-get-match
 Gets the `match_id` parameter from the event, makes a request to the OpenDota API to retrieve the match data, transforms the data to align with Dota Clarity's expected match schema, and returns the match.
 
@@ -63,7 +69,7 @@ Gets the `id` parameter from the event, queries `dota-clarity-matches-table` for
 
 ### API Gateway
 
-Dota Clarity REST API to expose the application's profile and match data.  Resources and methods are linked to the Lambda functions above. 
+Dota Clarity REST API to expose the application's profile and match data. It is authenticated using Amazon Cognito User Pools with every request requiring an access token. Resources and methods are linked to the Lambda functions above. 
 
 Documentation of the API can be found here: [Dota Clarity REST API Resources](/docs/README.md).
 
@@ -78,6 +84,8 @@ SAM CLI is used to build and deploy the application and requires the following t
 
 ## Deploy Dota Clarity to AWS
 
+### 1. Build and deploy the backend
+
 Dota Clarity uses the Serverless Application Model Command Line Interface (SAM CLI) for building and deploying the application. To build and deploy the application, run the following commands in your shell:
 
 ```bash
@@ -87,9 +95,24 @@ sam deploy
 
 _Note: if you would like to change the deployment configuration then use `sam deploy --guided`._
 
-You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment.
+### 2. Configure and deploy the client
 
-## Cleanup AWS Cloudformation stack
+<!-- You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment. -->
+When the backend deployment completes your terminal will print the outputs of the stack. Copy the values of the following outputs and paste them into `client/js/config.js`
+
+- `CognitoUserPoolId`
+- `CognitoUserPoolClientId`
+- `ApiGatewayUrl`
+
+Deploy the client to S3 using the `BucketName` output value.
+
+```bash
+aws s3 cp website s3://<BucketName value> --recursive --acl public-read
+```
+
+You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
+
+## Cleanup AWS CloudFormation stack
 
 To delete the Dota Clarity application that you have deployed, use the AWS CLI:
 
@@ -127,18 +150,6 @@ sam local start-api --parameter-overrides ParameterKey=Environment,ParameterValu
 
 Example payloads are provided in the `/payloads` directory and are used in POST requests below.
 
-#### Create profile
-
-```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-profile.json http://localhost:3000/profiles
-```
-
-#### Get profile
-
-```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/profiles/bestdotaplayer@dota.com
-```
-
 #### Get match
 
 ```bash
@@ -148,25 +159,25 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/53
 #### Get all matches
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/68726794
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/players/68726794
 ```
 
 #### Create favourite match
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/4ae52f50
 ```
 
 #### Get favourite match
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com/5392211187
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50/5392211187
 ```
 
 #### Get all favourite matches
 
 ```bash
-curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/bestdotaplayer@dota.com
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/favourites/4ae52f50
 ```
 
 #### Scan table

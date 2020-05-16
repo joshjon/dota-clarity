@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Dota Clarity</title>
+  <!-- Styling -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/landing.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Modal Login Box -->
+  <div id="modalLogin" class="modal">
+    <!-- Modal Content -->
+    <form id="signinForm" class="modal-content animate text-center align-middle container form-group">
+      <div class="text-center align-middle">
+        <img class="login-logo" src="images/dota-clarity-logo.png">
+      </div>
+      <p id="errorMessage"></p>
+      <div class="loginField">
+        <label for="email"><b>Email</b></label>
+        <input type="email" id="emailInputSignin" class="form-control" placeholder="Email" name="email" required>
+        <br>
+        <label for="password"><b>Password</b></label>
+        <input type="password" id="passwordInputSignin" class="form-control" placeholder="Password" pattern=".*" name="password" required>
+        <br>
+        <input type="submit" class="modalloginbtn btn btn-primary" value="Login">
+        <button type="button" class="modalloginbtn btn btn-primary" onclick="document.getElementById('modalLogin').style.display='none'; document.getElementById('errorMessage').innerHTML=''">Cancel</button>
+        <p></p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Banner Content -->
+  <div class="banner-bg">
+    <button class="btn btn-primary login" onclick="document.getElementById('modalLogin').style.display='block'">LOGIN</button>
+    <div class="text-center align-middle">
+      <h1>Become an Immortal</h1>
+      <h3>Analyze your match stats and improve your game</h3>
+      <button class="btn btn-primary register" onclick="window.location.href='register.html';">REGISTER NOW</button>
+    </div>
+  </div>
+
+  <!-- Body Content -->
+  <div class="container">
+    <div class="container row text-center align-middle body-container">
+      <img class="logo" src="images/dota-clarity-logo.png">
+      <h4 class="logo-text">Dota Clarity</h4>
+    </div>
+    <!-- Body Text -->
+    <div class="row body-content text-center align-middle body-container">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+    </div>
+    <!-- Body Extras -->
+    <div class="row body-content">
+      <div class="col-md-1">
+      </div>
+      <div class="col-md-5 text-center align-middle">
+        <img src="https://img.icons8.com/cotton/64/000000/globe.png" />
+        <p>Users all over the globe!</p>
+      </div>
+      <div class="col-md-5 text-center align-middle">
+        <img src="https://img.icons8.com/cotton/64/000000/chat.png" />
+        <p>!!!CHANGE THIS!!!</p>
+      </div>
+      <div class="col-md-1">
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript required for all pages -->
+  <script src="js/vendor/jquery-3.1.0.js"></script>
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <script src="js/vendor/aws-cognito-sdk.min.js"></script>
+  <script src="js/vendor/amazon-cognito-identity.min.js"></script>
+  <script src="https://js.arcgis.com/4.3/"></script>
+  <script src="js/config.js"></script>
+  <script src="js/cognito-auth.js"></script>
+
+    <!-- Helper functions -->
+    <script src="js/utils.js"></script>
+</body>
+
+</html>

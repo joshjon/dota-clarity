@@ -1,0 +1,44 @@
+html {
+  height: 100%;
+}
+
+body {
+  background-color: #212120;
+  color: white;
+}
+
+.modal-content {
+  background-color: #212120;
+}
+
+.close {
+  background-color: red;
+}
+
+.container-body {
+  margin-top: 85px !important;
+}
+
+p {
+  color: white;
+    padding-top: calc(5px + 0.2vw);
+    padding-bottom: calc(15px + 0.7vw);
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+}
+
+.top-20 {
+  margin-top: 20px;
+}
+
+.top-30 {
+  margin-top: 30px;
+}
+
+#replay-link{
+  color: #53a7df;
+}
