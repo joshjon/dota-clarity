@@ -1,0 +1,61 @@
+.bg {
+    background:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(../images/bg.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+input {
+    max-width: calc(300px + 5vw);
+    display: block;
+    margin: 0 auto;
+}
+
+.form-container {
+    color: white;
+    background-color: #212120;
+    border-radius: 15px;
+    min-width: calc(450px + 5vw);
+    margin: auto;
+}
+
+.form-content {
+    padding-top: calc(10px + 1vw);
+    padding-bottom: calc(10px + 1vw);
+}
+
+.form-container {
+    margin-top: 7vw;
+    width: 30%;
+}
+
+/* Button Styling */
+
+.btn {
+    background-color: #eb3030;
+    border-color: #eb3030;
+    margin: 10px;
+    border-width: 1px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.2em;
+    width: 20%;
+    transition-duration: 0.4s;
+}
+
+.btn:hover {
+    opacity: 1;
+    color: #ff0d0d;
+    background-color: #ffffff;
+    border-color: #ff0d0d;
+}
+
+.btn.btn-primary:focus {
+    outline: none;
+    box-shadow: none;
+    color: white;
+}

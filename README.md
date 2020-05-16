@@ -2,13 +2,13 @@
 
 This project contains source code and supporting files for the serverless application Dota Clarity.
 
-It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS Cloudformation stack.
+It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS CloudFormation stack.
 
 ## Table of Contents
    * [Infrastructure](#Infrastructure)
    * [Prerequisites](#Prerequisites)
    * [Deploy Dota Clarity to AWS](#Deploy-Dota-Clarity-to-AWS)
-   * [Cleanup AWS Cloudformation stack](#Cleanup-AWS-Cloudformation-stack)
+   * [Cleanup AWS CloudFormation stack](#Cleanup-AWS-CloudFormation-stack)
    * [Local development and testing](#Local-development-and-testing)
 
 ## Infrastructure
@@ -78,6 +78,8 @@ SAM CLI is used to build and deploy the application and requires the following t
 
 ## Deploy Dota Clarity to AWS
 
+### 1. Build and deploy the backend
+
 Dota Clarity uses the Serverless Application Model Command Line Interface (SAM CLI) for building and deploying the application. To build and deploy the application, run the following commands in your shell:
 
 ```bash
@@ -87,9 +89,24 @@ sam deploy
 
 _Note: if you would like to change the deployment configuration then use `sam deploy --guided`._
 
-You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment.
+### 2. Configure and deploy the client
 
-## Cleanup AWS Cloudformation stack
+<!-- You will then find the Dota Clarity API Gateway Endpoint URL in the output values displayed after deployment. -->
+When the backend deployment completes your terminal will print the outputs of the stack. Copy the values of the following outputs and paste them into `client/js/config.js`
+
+- `CognitoUserPoolId`
+- `CognitoUserPoolClientId`
+- `ApiGatewayUrl`
+
+Deploy the client to S3 using the `BucketName` output value.
+
+```bash
+aws s3 cp website s3://<BucketName value> --recursive --acl public-read
+```
+
+You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
+
+## Cleanup AWS CloudFormation stack
 
 To delete the Dota Clarity application that you have deployed, use the AWS CLI:
 

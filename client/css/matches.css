@@ -1,0 +1,41 @@
+table {
+  background-color: #2c2c2c;
+}
+
+#matches-table img {
+  width: 75px;
+}
+
+.team-table img {
+  width: 75px;
+}
+
+table tr td {
+  background-color: #313131;
+}
+
+.player-row {
+  border: 2px solid #313131;
+}
+
+#matches-table tr td{
+  cursor: pointer;
+  margin: 15px 0;
+}
+
+#stat-card-title {
+  font-weight: bold;
+  color: #d9534f;
+}
+
+.team-names {
+  font-weight: bold;
+  color: #d9534f;
+}
+
+@media (min-width: 768px) {
+  .modal-xl {
+    width: 90%;
+   max-width:1200px;
+  }
+}

@@ -58,20 +58,7 @@ Resources:
       ClientName: dota-clarity-user-pool
       UserPoolId: !Ref DotaClarityCognitoUserPool
       GenerateSecret: false
-
-  ProfilesTable:
-    Type: "AWS::DynamoDB::Table"
-    Properties:
-      TableName: !Sub ${AWS::StackName}-profiles-table
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+  
   MatchesTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -90,58 +77,12 @@ Resources:
         - AttributeName: "match_id"
           KeyType: "RANGE"
 
-  CreateProfileFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-create-profile
-      CodeUri: functions/profiles/create_profile/
-      Handler: create_profile.lambda_handler
-      Runtime: python3.8
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ProfilesTable
-      Environment:
-        Variables:
-          ENVIRONMENT: !Ref Environment
-          TABLE_NAME: !Ref ProfilesTable
-          TABLE_ARN: !GetAtt ProfilesTable.Arn
-      Events:
-        CreateProfileAPI:
-          Type: Api
-          Properties:
-            RestApiId: !Ref DotaClarityApi
-            Path: /profiles
-            Method: POST
-
-  GetProfileFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-get-profile
-      CodeUri: functions/profiles/get_profile/
-      Handler: get_profile.lambda_handler
-      Runtime: python3.8
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ProfilesTable
-      Environment:
-        Variables:
-          ENVIRONMENT: !Ref Environment
-          TABLE_NAME: !Ref ProfilesTable
-          TABLE_ARN: !GetAtt ProfilesTable.Arn
-      Events:
-        GetProfileAPI:
-          Type: Api
-          Properties:
-            RestApiId: !Ref DotaClarityApi
-            Path: /profiles/{id}
-            Method: GET
-
   CreateFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-create-favourite-match
-      CodeUri: functions/matches/favourites/create_match/
-      Handler: create_match.lambda_handler
+      CodeUri: functions/create_favourite_match
+      Handler: create_favourite_match.lambda_handler
       Runtime: python3.8
       Policies:
         - DynamoDBCrudPolicy:
@@ -163,8 +104,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-favourite-match
-      CodeUri: functions/matches/favourites/get_match/
-      Handler: get_match.lambda_handler
+      CodeUri: functions/get_favourite_match
+      Handler: get_favourite_match.lambda_handler
       Runtime: python3.8
       Policies:
         - DynamoDBCrudPolicy:
@@ -186,8 +127,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-favourite-matches
-      CodeUri: functions/matches/favourites/get_matches/
-      Handler: get_matches.lambda_handler
+      CodeUri: functions/get_all_favourite_matches
+      Handler: get_all_favourite_matches.lambda_handler
       Runtime: python3.8
       Policies:
         - DynamoDBCrudPolicy:
@@ -202,15 +143,15 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
-            Path: /matches/favourites/{id}/
+            Path: /matches/favourites/{id}
             Method: GET
   
   DeleteFavouriteMatchFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-delete-favourite-match
-      CodeUri: functions/matches/favourites/delete_match/
-      Handler: delete_match.lambda_handler
+      CodeUri: functions/delete_favourite_match
+      Handler: delete_favourite_match.lambda_handler
       Runtime: python3.8
       Policies:
         - DynamoDBCrudPolicy:
@@ -232,7 +173,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-match
-      CodeUri: functions/matches/get_match/
+      CodeUri: functions/get_match
       Handler: get_match.lambda_handler
       Runtime: python3.8
       Events:
@@ -240,14 +181,14 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
-            Path: /matches/{match_id}/
+            Path: /matches/{match_id}
             Method: GET
 
   GetAllMatchesFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AWS::StackName}-get-all-matches
-      CodeUri: functions/matches/get_all_matches/
+      CodeUri: functions/get_all_matches
       Handler: get_all_matches.lambda_handler
       Runtime: python3.8
       Events:
@@ -255,7 +196,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref DotaClarityApi
-            Path: /matches/players/{steam_id}/
+            Path: /matches/players/{steam_id}
             Method: GET
 
   CloudFrontOriginAccessIdentity:
@@ -292,10 +233,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: dota-clarity
-      # AccessControl: PublicRead
-      # WebsiteConfiguration:
-      #   IndexDocument: landing.html
-      #   ErrorDocument: error.html
 
   DotaClarityS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -303,7 +240,6 @@ Resources:
       Bucket: !Ref DotaClarityS3Bucket
       PolicyDocument:
         Id: Dota Clarity Frontend Bucket Policy
-        # Version: 2012-10-17
         Statement:
           - Sid: PublicReadForGetBucketObjects
             Effect: Allow
@@ -312,60 +248,25 @@ Resources:
             Resource: !Sub 'arn:aws:s3:::${DotaClarityS3Bucket}/*'
             Principal:
               AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
-
-  # ReadPolicy:
-  #   Type: 'AWS::S3::BucketPolicy'
-  #   Properties:
-  #     Bucket: !Ref S3Bucket
-  #     PolicyDocument:
-  #       Statement:
-  #       - Action: 's3:GetObject'
-  #         Effect: Allow
-  #         Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
-  #         Principal:
-  #           CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
-
+              
 Outputs:
-
-  BucketName:
-      Description: 'Dota Clarity S3 Bucket Name'
-      Value: !Ref DotaClarityS3Bucket
-
-  # Dont think i need this one (maybe for uploading)
-  S3BucketSecureURL:
-    Description: Name of S3 bucket to hold website content
-    Value: !Join
-      - ""
-      - - "https://"
-        - !GetAtt
-          - DotaClarityS3Bucket
-          - DomainName
-
-  DistributionId:
-    Description: 'CloudFront Distribution ID'
-    Value: !Ref CloudFrontDistribution
-
-  # Pretty sure this is the one
-  Domain:
-    Description: 'Cloudfront Domain'
+  
+  WebsitePublicUrl:
+    Description: 'Dota Clarity Cloudfront Public Domain'
     Value: !GetAtt CloudFrontDistribution.DomainName
 
-  # Dont think i need this one
-  WebsiteURL:
-    Description: URL for Dota Clarity website hosted on S3
-    Value: !GetAtt
-      - DotaClarityS3Bucket
-      - WebsiteURL
+  BucketName:
+    Description: 'Dota Clarity S3 Bucket Name'
+    Value: !Ref DotaClarityS3Bucket
 
-  DotaClarityApiUrl:
-    Description: "Dota Clarity API Gateway endpoint URL for Prod stage"
+  ApiGatewayUrl:
+    Description: "Dota Clarity API Gateway URL for Prod stage"
     Value: !Sub "https://${DotaClarityApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-
-  CognitoUserPoolId:
-    Description: "Cognito User Pool Id"
-    Value: !Ref DotaClarityCognitoUserPool
 
   CognitoUserPoolClientId:
     Description: "Cognito User Pool Client Id"
     Value: !Ref DotaClarityCognitoUserPoolClient
 
+  CognitoUserPoolId:
+    Description: "Cognito User Pool Id"
+    Value: !Ref DotaClarityCognitoUserPool
