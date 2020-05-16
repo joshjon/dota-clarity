@@ -103,7 +103,7 @@ When the backend deployment completes your terminal will print the outputs of th
 - `CognitoUserPoolClientId`
 - `ApiGatewayUrl`
 
-Deploy the client to S3 using the `BucketName` output value.
+Finally, deploy the client to S3 using the `BucketName` output value.
 
 ```bash
 aws s3 cp website s3://<BucketName value> --recursive --acl public-read
