@@ -3,36 +3,6 @@ var storageKey = "dota-clarity-matches"
 var sessionExpiryMins = 5
 
 /* 
- * Profiles API
- */
-
-async function createProfile(body) {
-    data = JSON.stringify(body)
-    var token = await App.authToken;
-    return await $.ajax({
-        beforeSend: function (request) {
-            request.setRequestHeader('Authorization', token);
-        },
-        url: _config.api.url + 'profiles',
-        method: 'POST',
-        data: data,
-        dataType: 'json',
-    });
-}
-
-async function getProfile(id) {
-    var token = await App.authToken;
-    return await $.ajax({
-        beforeSend: function (request) {
-            request.setRequestHeader('Authorization', token);
-        },
-        url:  _config.api.url + 'profiles/' + id,
-        method: 'GET',
-        dataType: 'json',
-    });
-}
-
-/* 
  * Matches API
  */
 
