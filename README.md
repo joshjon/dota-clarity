@@ -109,7 +109,7 @@ Deploy the client to S3 using the `BucketName` output value.
 aws s3 cp website s3://<BucketName value> --recursive --acl public-read
 ```
 
-You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. <d1zx0ql70u7omk.cloudfront.net>.
+You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
 
 ## Cleanup AWS CloudFormation stack
 
