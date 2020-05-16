@@ -258,40 +258,104 @@ Resources:
             Path: /matches/players/{steam_id}/
             Method: GET
 
-  # DotaClarityS3Bucket:
-  #   Type: AWS::S3::Bucket
-  #   Properties:
-  #     AccessControl: PublicRead
-  #     WebsiteConfiguration:
-  #       IndexDocument: landing.html
-  #       ErrorDocument: error.html
+  CloudFrontOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Ref DotaClarityS3Bucket
 
-  # DotaClarityS3BucketPolicy:
-  #   Type: AWS::S3::BucketPolicy
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: "landing.html"
+        Enabled: true
+        HttpVersion: http2
+        Origins:
+        - DomainName: !GetAtt 'DotaClarityS3Bucket.DomainName'
+          Id: dota-clarity-origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        PriceClass: 'PriceClass_All'
+        DefaultCacheBehavior:
+          Compress: 'true'
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: dota-clarity-origin
+          ViewerProtocolPolicy : redirect-to-https
+
+  DotaClarityS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: dota-clarity
+      # AccessControl: PublicRead
+      # WebsiteConfiguration:
+      #   IndexDocument: landing.html
+      #   ErrorDocument: error.html
+
+  DotaClarityS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DotaClarityS3Bucket
+      PolicyDocument:
+        Id: Dota Clarity Frontend Bucket Policy
+        # Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${DotaClarityS3Bucket}/*'
+            Principal:
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
+
+  # ReadPolicy:
+  #   Type: 'AWS::S3::BucketPolicy'
   #   Properties:
+  #     Bucket: !Ref S3Bucket
   #     PolicyDocument:
-  #       Id: Dota Clarity Frontend Bucket Policy
-  #       Version: 2012-10-17
   #       Statement:
-  #         - Sid: PublicReadForGetBucketObjects
-  #           Effect: Allow
-  #           Principal: "*"
-  #           Action: "s3:GetObject"
-  #           Resource: !Join
-  #             - ""
-  #             - - "arn:aws:s3:::"
-  #               - !Ref DotaClarityS3Bucket
-  #               - /*
-  #     Bucket: !Ref DotaClarityS3Bucket
+  #       - Action: 's3:GetObject'
+  #         Effect: Allow
+  #         Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
+  #         Principal:
+  #           CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
 
 Outputs:
-  Region:
-    Description: "Region"
-    Value: !Ref AWS::Region
 
-  ApiId:
-    Description: "API ID"
-    Value: !Ref DotaClarityApi
+  BucketName:
+      Description: 'Dota Clarity S3 Bucket Name'
+      Value: !Ref DotaClarityS3Bucket
+
+  # Dont think i need this one (maybe for uploading)
+  S3BucketSecureURL:
+    Description: Name of S3 bucket to hold website content
+    Value: !Join
+      - ""
+      - - "https://"
+        - !GetAtt
+          - DotaClarityS3Bucket
+          - DomainName
+
+  DistributionId:
+    Description: 'CloudFront Distribution ID'
+    Value: !Ref CloudFrontDistribution
+
+  # Pretty sure this is the one
+  Domain:
+    Description: 'Cloudfront Domain'
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  # Dont think i need this one
+  WebsiteURL:
+    Description: URL for Dota Clarity website hosted on S3
+    Value: !GetAtt
+      - DotaClarityS3Bucket
+      - WebsiteURL
 
   DotaClarityApiUrl:
     Description: "Dota Clarity API Gateway endpoint URL for Prod stage"
@@ -305,17 +369,3 @@ Outputs:
     Description: "Cognito User Pool Client Id"
     Value: !Ref DotaClarityCognitoUserPoolClient
 
-  # WebsiteURL:
-  #   Value: !GetAtt
-  #     - DotaClarityS3Bucket
-  #     - WebsiteURL
-  #   Description: URL for Dota Clarity website hosted on S3
-
-  # S3BucketSecureURL:
-  #   Value: !Join
-  #     - ""
-  #     - - "https://"
-  #       - !GetAtt
-  #         - DotaClarityS3Bucket
-  #         - DomainName
-  #   Description: Name of S3 bucket to hold website content
