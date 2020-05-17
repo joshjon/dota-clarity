@@ -1,4 +1,4 @@
-# Dota Clarity Backend
+# Dota Clarity
 
 This project contains source code and supporting files for the serverless application Dota Clarity.
 
