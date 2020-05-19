@@ -42,3 +42,27 @@ p {
 #replay-link{
   color: #53a7df;
 }
+
+.loader {
+  border: 16px solid #808080; /* Light grey */
+  border-top: 16px solid #ff0d0d; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+.loader-container {
+  margin-top: 80px;
+  margin-bottom: 300px;
+}
+
+.loader-container .modal-body{
+  margin-top: 100px;
+  margin-bottom: 100px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

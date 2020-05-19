@@ -1,6 +1,6 @@
 var App = window.App || {};
 var storageKey = "dota-clarity-matches"
-var sessionExpiryMins = 5
+var sessionExpiryMins = 15
 
 /* 
  * Matches API

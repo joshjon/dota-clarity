@@ -29,7 +29,7 @@ $(document).ready(function () {
 $(document).on("click", "#matches-table .delete-btn", function () {
     var row = $(this).closest("tr")
     var matchId = row.find("#match-id").text()
-    deleteFavouriteMatch(getCurrentCognitoUser(), matchId).then(() => {
+    deleteFavouriteMatch(getCogntioUsername(), matchId).then(() => {
         row.remove()
     })
 });
@@ -79,7 +79,7 @@ $('#matches-table').on('click', 'tbody > tr > td', function () {
  */
 
 async function populateFavouritesTable(table) {
-    matches = await getAllFavouriteMatches(getCurrentCognitoUser())
+    matches = await getAllFavouriteMatches(getCogntioUsername())
     $.each(matches, function (i, item) {
         table.DataTable().row.add(getColumns(item)).draw(false);
     });

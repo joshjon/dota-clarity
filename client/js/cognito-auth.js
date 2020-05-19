@@ -51,23 +51,50 @@ var App = window.App || {};
         }
     });
 
+    App.idToken = new Promise(function fetchCurrentAuthToken(resolve, reject) {
+        var cognitoUser = userPool.getCurrentUser();
+
+        if (cognitoUser) {
+            cognitoUser.getSession(function sessionCallback(err, session) {
+                if (err) {
+                    reject(err);
+                } else if (!session.isValid()) {
+                    resolve(null);
+                } else {
+                    resolve(session.getIdToken());
+                }
+            });
+        } else {
+            resolve(null);
+        }
+    });
+
+
 
     /*
      * Cognito User Pool functions
      */
 
-    function register(email, password, onSuccess, onFailure) {
+    function register(email, password, steamId, onSuccess, onFailure) {
         var dataEmail = {
             Name: 'email',
             Value: email
         };
+        console.log(steamId)
+        var dataSteamId = {
+            Name: 'custom:steamId',
+            Value: steamId
+        };
         var attributeEmail = new AmazonCognitoIdentity.CognitoUserAttribute(dataEmail);
+        var attributeSteamId = new AmazonCognitoIdentity.CognitoUserAttribute(dataSteamId);
 
-        userPool.signUp(email, password, [attributeEmail], null,
+        userPool.signUp(email, password, [attributeEmail, attributeSteamId], null,
             function signUpCallback(err, result) {
+                console.log(attributeSteamId)
                 if (!err) {
                     onSuccess(result);
                 } else {
+                    console.log(err)
                     onFailure(err);
                 }
             }
@@ -136,6 +163,7 @@ var App = window.App || {};
     }
 
     function handleRegister(event) {
+        var steamId = $('#steamIdInputRegister').val();
         var email = $('#emailInputRegister').val();
         var password = $('#passwordInputRegister').val();
         var password2 = $('#password2InputRegister').val();
@@ -149,15 +177,15 @@ var App = window.App || {};
             }
         };
         var onFailure = function registerFailure(err) {
-            document.getElementById("errorMessage").innerHTML = "Password length must be greater than or equal to 6" +
-                "<br>Password must contain an uppercase letter" +
-                "<br>Password must contain a lowercase letter" +
-                "<br>Password must contain a number";
+            document.getElementById("errorMessage").innerHTML = "Error occured, please ensure you meet the following criteria:" +
+                "<br>Password must be at least 6 characters" +
+                "<br>Must have a valid email" +
+                "<br>Must have a valid 32 bit Steam ID";
         };
         event.preventDefault();
 
         if (password === password2) {
-            register(email, password, onSuccess, onFailure);
+            register(email, password, steamId, onSuccess, onFailure);
         } else {
             document.getElementById("errorMessage").innerHTML = "Passwords do not match";
         }

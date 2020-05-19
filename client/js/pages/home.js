@@ -9,38 +9,50 @@ var App = window.App || {};
 
 $(document).ready(function () {
     // Setup player stats
-    getPlayerStats(getSteamId()).then(data => {
-        var winrate = Math.round((data.win / (data.win + data.lose)) * 100)
-        var wl = generateStatsCard("Win / Loss", "Wins: " + data.win, "Losses: " + data.lose, "Winrate: " + winrate + '%')
-        var kda = generateStatsCard("Total KDA", "Kills: " + data.kills.sum, "Deaths: " + data.deaths.sum, "Assists: " + data.assists.sum)
-        var avgKda = generateStatsCard("Avg KDA", "Kills: " + data.avg_kills, "Deaths: " + data.avg_deaths, "Assists: " + data.avg_assists)
-        var performance = generateStatsCard("Avg Performance", "GPM: " + data.avg_gold_per_min, "Last hits: " + data.avg_last_hits, "Denies: " + data.avg_denies)
-        var dmg = generateStatsCard("Avg Damage / Heals", "Damage: " + data.avg_hero_damage, "Healing: " + data.avg_hero_healing, "Tower Damage: " + data.avg_tower_damage)
-        var misc = generateStatsCard("Misc.", "Courier kills: " + data.courier_kills.sum, "Rapiers purchased: " + data.purchase_rapier.sum, "Pings: " + data.pings.sum)
-        $("#stats-row").append(wl);
-        $("#stats-row").append(kda);
-        $("#stats-row").append(avgKda);
-        $("#stats-row").append(performance);
-        $("#stats-row").append(dmg);
-        $("#stats-row").append(misc);
+    getCognitoSteamId().then(steamId => {
+        getPlayerStats(steamId).then(data => {
+            var winrate = Math.round((data.win / (data.win + data.lose)) * 100)
+            var wl = generateStatsCard("Win / Loss", "Wins: " + data.win, "Losses: " + data.lose, "Winrate: " + winrate + '%')
+            var kda = generateStatsCard("Total KDA", "Kills: " + data.kills.sum, "Deaths: " + data.deaths.sum, "Assists: " + data.assists.sum)
+            var avgKda = generateStatsCard("Avg KDA", "Kills: " + data.avg_kills, "Deaths: " + data.avg_deaths, "Assists: " + data.avg_assists)
+            var performance = generateStatsCard("Avg Performance", "GPM: " + data.avg_gold_per_min, "Last hits: " + data.avg_last_hits, "Denies: " + data.avg_denies)
+            var dmg = generateStatsCard("Avg Damage / Heals", "Damage: " + data.avg_hero_damage, "Healing: " + data.avg_hero_healing, "Tower Damage: " + data.avg_tower_damage)
+            var misc = generateStatsCard("Misc.", "Courier kills: " + data.courier_kills.sum, "Rapiers purchased: " + data.purchase_rapier.sum, "Pings: " + data.pings.sum)
+            $("#stats-row").append(wl);
+            $("#stats-row").append(kda);
+            $("#stats-row").append(avgKda);
+            $("#stats-row").append(performance);
+            $("#stats-row").append(dmg);
+            $("#stats-row").append(misc);
+        })
     })
 
     // Setup matches data table
     var t = $('#matches-table').DataTable({
         "order": [[1, "desc"]],
         "iDisplayLength": 25,
+        "processing": true,
         "columnDefs": [
             { "type": "display", "targets": 1, render: $.fn.dataTable.render.moment('Do MMM YYYYY') },
             { "orderable": false, "targets": [0, 3, 4, 5, 6] }
         ]
     });
 
+    $('#loader').show()
+    $('#matches-table').hide()
     // Populate table with player matches
-    getPlayerMatches(getSteamId()).then(response => {
-        $.each(response.items, function (i, item) {
-            t.row.add(getColumns(item)).draw(false);
+    getCognitoSteamId().then(steamId => {
+        getPlayerMatches(steamId).then(response => {
+            $.each(response.items, function (i, item) {
+                t.row.add(getColumns(item)).draw(false);
+            });
+            $('#loader').hide()
+            $('#matches-table').show()
         });
-    });
+    })
+    // $('#home-table-loader').hide()
+
+
 });
 
 /*
@@ -55,13 +67,15 @@ $(document).on("click", ".fav-btn", function () {
     var assists = row.find("#assists").text()
     var heroImage = row.find("#player-hero-image").attr('src')
     getMatch(matchId).then(data => {
-        data.id = getCurrentCognitoUser()
-        data.steamid = getSteamId()
-        data.hero_img = heroImage
-        data.kills = kills
-        data.deaths = deaths
-        data.assists = assists
-        createFavouriteMatch(data)
+        getCognitoSteamId().then(steamId => {
+            data.id = getCogntioUsername()
+            data.steamid = steamId
+            data.hero_img = heroImage
+            data.kills = kills
+            data.deaths = deaths
+            data.assists = assists
+            createFavouriteMatch(data)
+        })
     })
 });
 

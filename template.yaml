@@ -48,6 +48,9 @@ Resources:
       Schema:
         - AttributeDataType: String
           Name: email
+          Required: true
+        - AttributeDataType: Number
+          Name: steamId
           Required: false
       EmailVerificationMessage: "Your Dota Clarity account verification code is {####}."
       EmailVerificationSubject: "Dota Clarity account verification code"
