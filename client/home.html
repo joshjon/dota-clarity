@@ -32,15 +32,13 @@
     </div>
   </div>
 
-  <!-- Modal window for full match details of a match -->
-  <div id="loader" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xl" role="document">
-      <div class="modal-content loader-container">
-        <div class="modal-body text-center">
-          <h3 class="center">Loading your profile and match data</h3><br>
-          <h4 class="center">Making table rows sortable and searchable can take some time</h3><br><br>
+  <div id="loader-container" class="container">
+    <div class="container-body">
+      <div id="stats-row" class="row"></div>
+      <div class="text-center">
+        <h3 class="center">Loading your profile and match data</h3><br>
+        <h4 class="center">Making table rows sortable and searchable can take some time</h3><br><br>
           <div id="home-table-loader" class="center loader"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -72,7 +70,7 @@
   </div>
 
   <!-- Modal window for full match details of a match -->
-  <div class="modal" tabindex="-1" role="dialog">
+  <div id="match-modal" class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -84,7 +82,7 @@
         <div class="modal-body">
 
           <div id="stats-row-modal" class="row"></div>
-          <h4 class="team-names" >Radiant</h4>
+          <h4 class="team-names">Radiant</h4>
           <table id="radiant-team" class="table team-table">
             <thead>
               <tr>

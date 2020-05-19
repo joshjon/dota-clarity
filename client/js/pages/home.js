@@ -31,27 +31,21 @@ $(document).ready(function () {
     var t = $('#matches-table').DataTable({
         "order": [[1, "desc"]],
         "iDisplayLength": 25,
-        "processing": true,
         "columnDefs": [
             { "type": "display", "targets": 1, render: $.fn.dataTable.render.moment('Do MMM YYYYY') },
             { "orderable": false, "targets": [0, 3, 4, 5, 6] }
         ]
     });
 
-    $('#loader').show()
-    $('#matches-table').hide()
     // Populate table with player matches
     getCognitoSteamId().then(steamId => {
         getPlayerMatches(steamId).then(response => {
             $.each(response.items, function (i, item) {
                 t.row.add(getColumns(item)).draw(false);
             });
-            $('#loader').hide()
-            $('#matches-table').show()
+            $('#loader-container').remove()
         });
     })
-    // $('#home-table-loader').hide()
-
 
 });
 
