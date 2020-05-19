@@ -110,7 +110,7 @@ When the backend deployment completes your terminal will print the outputs of th
 Finally, deploy the client to S3 using the `BucketName` output value.
 
 ```bash
-aws s3 cp website s3://<BucketName value> --recursive --acl public-read
+aws s3 cp client s3://<BucketName value> --recursive --acl public-read
 ```
 
 You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
