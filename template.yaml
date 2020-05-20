@@ -17,6 +17,13 @@ Parameters:
     AllowedValues:
       - local
       - aws
+  BucketName:
+    Type: String
+    Description: The name of the S3 Bucket to create to host the Dota Clarity client. This must be globally unique.
+    MinLength: 5
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z-]+$
+    ConstraintDescription: 'Required parameter. Must only contain letters or hyphens.'
 
 Resources:
   DotaClarityApi:
@@ -235,7 +242,7 @@ Resources:
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: dota-clarity
+      BucketName: !Ref BucketName
 
   DotaClarityS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -260,7 +267,7 @@ Outputs:
 
   BucketName:
     Description: 'Dota Clarity S3 Bucket Name'
-    Value: !Ref DotaClarityS3Bucket
+    Value: !Ref BucketName
 
   ApiGatewayUrl:
     Description: "Dota Clarity API Gateway URL for Prod stage"
