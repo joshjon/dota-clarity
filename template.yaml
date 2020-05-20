@@ -241,6 +241,7 @@ Resources:
 
   DotaClarityS3Bucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
     Properties:
       BucketName: !Ref BucketName
 

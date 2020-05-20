@@ -84,7 +84,7 @@ SAM CLI is used to build and deploy the application and requires the following t
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 - [SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 - [Python 3](https://www.python.org/downloads/)
-- [Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
+- [Docker community edition](https://hub.docker.com/search/?type=edition&offering=community) (only required for local testing)
 
 ## Deploy Dota Clarity to AWS
 
@@ -94,10 +94,8 @@ Dota Clarity uses the Serverless Application Model Command Line Interface (SAM C
 
 ```bash
 sam build
-sam deploy
+sam deploy --guided
 ```
-
-_Note: if you would like to change the deployment configuration then use `sam deploy --guided`._
 
 ### 2. Configure and deploy the client
 
@@ -168,7 +166,7 @@ curl -X GET -H "Content-Type: application/json" http://localhost:3000/matches/pl
 #### Create favourite match
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites/4ae52f50
+curl -X POST -H "Content-Type: application/json" -d @payloads/create-match.json http://localhost:3000/matches/favourites
 ```
 
 #### Get favourite match
