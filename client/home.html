@@ -32,22 +32,19 @@
     </div>
   </div>
 
-  <div id="loader-container" class="container">
-    <div class="container-body">
-      <div id="stats-row" class="row"></div>
-      <div class="text-center">
-        <h3 class="center">Loading your profile and match data</h3><br>
-        <h4 class="center">Making table rows sortable and searchable can take some time</h3><br><br>
-          <div id="home-table-loader" class="center loader"></div>
-      </div>
-    </div>
-  </div>
-
   <!-- All matches of the logged in user with data simplified -->
-  <div class="container">
+  <div id="matches-container" class="container">
     <div class="container-body">
+      
       <div id="stats-row" class="row"></div>
-      <div class="row">
+
+      <div id="loader-row" class="row">
+        <h3 class="text-center">Loading your profile and match data</h3><br>
+        <h4 class="text-center">Making table rows sortable and searchable can take some time</h3><br><br>
+        <div id="home-table-loader" class="center loader"></div>
+      </div>
+
+      <div id="matches-row" class="row">
         <table id="matches-table" class="hover matches-table">
           <thead>
             <tr>

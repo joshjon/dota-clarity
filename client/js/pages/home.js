@@ -8,6 +8,9 @@ var App = window.App || {};
  */
 
 $(document).ready(function () {
+    // Hide matches table while loading rows
+    $('#matches-row').hide()
+
     // Setup player stats
     getCognitoSteamId().then(steamId => {
         getPlayerStats(steamId).then(data => {
@@ -43,7 +46,10 @@ $(document).ready(function () {
             $.each(response.items, function (i, item) {
                 t.row.add(getColumns(item)).draw(false);
             });
-            $('#loader-container').remove()
+        }).then(() => {
+            // Remove loader and show matches table
+            $('#loader-row').remove()
+            $('#matches-row').show()
         });
     })
 

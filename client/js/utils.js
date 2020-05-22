@@ -7,7 +7,7 @@ checkUserAuth()
 
 function signOut() {
     App.signOut();
-    window.localStorage.removeItem('dota-clarity-matches');
+    window.sessionStorage.removeItem('dota-clarity-matches');
     window.location = 'landing.html';
 };
 
