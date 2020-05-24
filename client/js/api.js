@@ -1,6 +1,8 @@
 var App = window.App || {};
-var storageKey = "dota-clarity-matches"
-var sessionExpiryMins = 15
+var matchKey = "dota-clarity-matches"
+var playerKey = "dota-clarity-player-totals"
+var winLossKey = "dota-clarity-win-loss"
+var sessionExpiryMins = 10
 
 /* 
  * Matches API
@@ -18,17 +20,18 @@ async function getMatch(matchId) {
     });
 }
 
-// Stores API response in session for 5 minutes before making another request
+// Stores API response in session for 10 minutes before making another request
 async function getPlayerMatches(steamId, offset = 0) {
-    var data = JSON.parse(sessionStorage.getItem(storageKey));
+    var key = generateKey(matchKey)
+    var data = JSON.parse(sessionStorage.getItem(key));
     if (data) {
         now = new Date();
         expiration = new Date(data.timestamp);
         expiration.setMinutes(expiration.getMinutes() + sessionExpiryMins);
-        // Remove from session if older than 5 minutes
+        // Remove from session of older than 10 minutes
         if (now.getTime() > expiration.getTime()) {
             data = false;
-            sessionStorage.removeItem(storageKey);
+            sessionStorage.removeItem(key);
         }
     }
     if (!data) {
@@ -45,7 +48,7 @@ async function getPlayerMatches(steamId, offset = 0) {
             timestamp: new Date(),
             matches: matches
         }
-        sessionStorage.setItem("dota-clarity-matches", JSON.stringify(data))
+        sessionStorage.setItem(generateKey(matchKey), JSON.stringify(data))
     }
     return data.matches;
 }
@@ -104,18 +107,68 @@ async function deleteFavouriteMatch(id, matchId) {
  * Player stats
  */
 
-function getPlayerTotals(steamId) {
-    return $.ajax({
-        url: 'https://api.opendota.com/api/players/' + steamId + '/totals',
-        method: 'GET',
-        dataType: 'json'
-    });
+ // Stores API response in session for 10 minutes before making another request
+async function getPlayerTotals(steamId) {
+    var key = generateKey(playerKey)
+    var data = JSON.parse(sessionStorage.getItem(key));
+    if (data) {
+        now = new Date();
+        expiration = new Date(data.timestamp);
+        expiration.setMinutes(expiration.getMinutes() + sessionExpiryMins);
+        // Remove from session of older than 10 minutes
+        if (now.getTime() > expiration.getTime()) {
+            data = false;
+            sessionStorage.removeItem(key);
+        }
+    }
+    if (!data) {
+        var totals = await $.ajax({
+            url: 'https://api.opendota.com/api/players/' + steamId + '/totals',
+            method: 'GET',
+            dataType: 'json'
+        });
+        data = {
+            timestamp: new Date(),
+            totals: totals
+        }
+        sessionStorage.setItem(generateKey(playerKey), JSON.stringify(data))
+    }
+    return data.totals;
 }
 
-function getWinLoss(steamId) {
-    return $.ajax({
-        url: 'https://api.opendota.com/api/players/' + steamId + '/wl',
-        method: 'GET',
-        dataType: 'json'
-    });
+// Stores API response in session for 10 minutes before making another request
+async function getWinLoss(steamId) {
+    var key = generateKey(winLossKey)
+    var data = JSON.parse(sessionStorage.getItem(key));
+    if (data) {
+        now = new Date();
+        expiration = new Date(data.timestamp);
+        expiration.setMinutes(expiration.getMinutes() + sessionExpiryMins);
+        // Remove from session of older than 10 minutes
+        if (now.getTime() > expiration.getTime()) {
+            data = false;
+            sessionStorage.removeItem(key);
+        }
+    }
+    if (!data) {
+        var winLoss = await $.ajax({
+            url: 'https://api.opendota.com/api/players/' + steamId + '/wl',
+            method: 'GET',
+            dataType: 'json'
+        });
+        data = {
+            timestamp: new Date(),
+            winLoss: winLoss
+        }
+        sessionStorage.setItem(generateKey(winLossKey), JSON.stringify(data))
+    }
+    return data.winLoss;
 }
+
+/* 
+ * Helpers
+ */
+
+ function generateKey(keyPrefix) {
+    return keyPrefix + "-" + getCogntioUsername()
+ }

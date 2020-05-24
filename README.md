@@ -113,12 +113,17 @@ aws s3 cp client s3://<BucketName value> --recursive --acl public-read
 
 You can now view the website by visiting the CloudFront URL found under the `WebsitePublicUrl` output e.g. d1zx0ql70u7omk.cloudfront.net.
 
-## Cleanup AWS CloudFormation stack
+## Clean up AWS CloudFormation stack
 
-To delete the Dota Clarity application that you have deployed, use the AWS CLI:
+Using the AWS CLI, force delete the client S3 bucket since the stack deletion will fail if the bucket exists with objects. Be sure to insert your BucketName output value in the command below (defined in step 1).
 
 ```bash
-aws cloudformation delete-stack --stack-name dota-clarity
+aws s3 rb s3://<your-bucket-name> --force  
+```
+Now we can safely delete the stack.
+
+```bash
+aws cloudformation delete-stack --<your-stack-name>
 ```
 
 ## Local development and testing

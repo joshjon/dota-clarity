@@ -1,3 +1,5 @@
+# Ignore config for Cognito and API so the services cannot be attacked
+client/js/config.js
 
 # Created by https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
