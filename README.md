@@ -2,7 +2,7 @@
 
 This project contains source code and supporting files for the serverless application Dota Clarity.
 
-It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including DynamoDB, Lambda functions and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS CloudFormation stack.
+It is built using the [AWS Serverless Application Model](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) (AWS SAM) and consists of several AWS resources, including S3, CloudFront, Cognito, DynamoDB, Lambda and an API Gateway API. SAM automates the provisioning of these resources by using the infrastructure model defined in `template.yaml` to create the Dota Clarity AWS CloudFormation stack.
 
 ## Table of Contents
 
@@ -67,7 +67,7 @@ Gets `id` and `match_id` parameters from the event, queries `dota-clarity-matche
 
 Gets `id` parameter from the event, queries `dota-clarity-matches-table` for all favourite matches with the same ID, and returns the list of matches.
 
-#### dota-clarity-delete-favourite-matche
+#### dota-clarity-delete-favourite-match
 
 Gets `id` and `match_id` parameters from the event and deletes the favourite match from `dota-clarity-matches-table`.
 
@@ -144,8 +144,7 @@ Setup the local environment by running `setup-local.sh`. You can simply press 'q
 ./setup-local.sh
 ```
 
-SAM uses Docker to emulate the application's API and run functions in an Amazon Linux environment that matches Lambda.
-Build the application and locally start the Dota Clarity API.
+SAM uses Docker to emulate the application's API and run functions in an Amazon Linux environment that matches Lambda. Build the application and locally start the Dota Clarity API.
 
 ```bash
 sam build
